@@ -1,17 +1,24 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
+use \App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-   return $request->user();
-})->middleware('auth:sanctum');
 
-Route::prefix('me')->controller(AuthController::class)->group(function () {
-   Route::get('/', 'index');
+// normal user
+Route::prefix('acc')->controller(AuthController::class)->group(function () {
    Route::post('/register', 'register');
    Route::post('/login', 'login');
-   Route::put('/update', 'update');
-   Route::delete('/delete', 'delete');
+   Route::middleware('auth:sanctum')->group(function () {
+      Route::get('/me/{id}', 'me');
+      Route::put('/update', 'update');
+      Route::delete('/delete', 'delete');
+   });
+});
+
+// admin
+Route::middleware('auth:sanctum')->group(function () {
+   Route::prefix('teacher')->controller(TeacherController::class)->group(function () {
+
+   });
 });

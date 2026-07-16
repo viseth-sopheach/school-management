@@ -9,10 +9,14 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-   public function index () {
-      Auth::user();
-      $user = User::all();
+   public function me()
+   {
+      $user = User::find(Auth::id());
+      return response()->json([
+         'user' => $user
+      ]);
    }
+
    public function register(Request $request)
    {
       $validated = $request->validate([
