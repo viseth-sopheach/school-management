@@ -13,6 +13,7 @@ Route::prefix('acc')->controller(AuthController::class)->group(function () {
       Route::get('/me/{id}', 'me');
       Route::put('/update', 'update');
       Route::delete('/delete', 'delete');
+      Route::post('/logout', 'logout');
    });
 });
 
