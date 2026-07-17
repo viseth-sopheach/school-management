@@ -16,7 +16,7 @@ return new class extends Migration {
          $table->string('name');
          $table->enum('gender', ['Male', 'Female']);
          $table->date('dob');
-         $table->float('C++_score')->nullable();
+         $table->float('Cpp_score')->nullable();
          $table->float('C_score')->nullable();
          $table->float('grade')->nullable();
          $table->timestamp('enrolled_at')->useCurrent();

@@ -41,8 +41,8 @@ class TeacherController extends Controller
    public function score(Request $req)
    {
       $val = $req->validate([
-         'C++ score' => 'required|float',
-         'C score' => 'required|float',
+         'C++_score' => 'required|float',
+         'C_score' => 'required|float',
       ]);
       $val = StudentInfoModel::created($val);
       return response()->json([
@@ -50,4 +50,49 @@ class TeacherController extends Controller
       ]);
    }
 
+   public function update(Request $req, int $id)
+   {
+      $val = $req->validate([
+         'name' => 'string|max:255',
+         'gender' => 'in:male,female',
+         'dob' => 'date',
+         'C++_score' => 'required|float',
+         'C_score' => 'required|float',
+      ]);
+      $student = StudentInfoModel::find($id);
+      if (!$student) {
+         return response()->json(['message' => 'Student not found'], 404);
+      }
+      if (isset($val['name'])) {
+         $student->name = $val['name'];
+      }
+      if (isset($val['gender'])) {
+         $student->gender = $val['gender'];
+      }
+      if (isset($val['dob'])) {
+         $student->dob = $val['dob'];
+      }
+      if (isset($val['Cpp_score'])) {
+         $student->{'Cpp_score'} = $val['Cpp_score'];
+      }
+      if (isset($val['C_score'])) {
+         $student->C_score = $val['C_score'];
+      }
+      $student->save();
+      return response()->json([
+         'student updated' => $student
+      ]);
+   }
+
+   public function delete(int $id)
+   {
+      $student = StudentInfoModel::find($id);
+      if (!$student) {
+         return response()->json(['message' => 'Student not found'], 404);
+      }
+      if ($student) {
+         $student->delete();
+         return response()->json(['message' => 'Student deleted']);
+      }
+   }
 }

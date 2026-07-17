@@ -11,7 +11,7 @@ class StudentInfoModel extends Model
       'name',
       'gender',
       'dob',
-      'C++_score',
+      'Cpp_score',
       'C_score',
       'grade',
       'enrolled_at',
