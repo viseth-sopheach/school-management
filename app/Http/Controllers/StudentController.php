@@ -25,9 +25,9 @@ class StudentController extends Controller
 
    public function logout(Request $request, int $id)
    {
-      $request->user()->token()->revoke();
-      return response()->json(['
-         message' => 'Successfully logged out'
+      $request->user()->currentAccessToken()->delete();
+      return response()->json([
+         'message' => 'Successfully logged out'
       ]);
    }
 }

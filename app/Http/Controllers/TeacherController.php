@@ -6,12 +6,13 @@ use App\Models\ClassModel;
 use App\Models\StudentInfoModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class TeacherController extends Controller
 {
-   public function index(Request $id)
+   public function index(Request $request, int $classId)
    {
-      $class = ClassModel::with('students')->find($id);
+      $class = ClassModel::with('students')->findOrFail($classId);
       return response()->json([
          'class' => $class
       ]);
@@ -30,12 +31,12 @@ class TeacherController extends Controller
    {
       $validate = $req->validate([
          'name' => 'required|string|max:255',
-         'gender' => 'required|enum:male,female',
+         'gender' => 'required|in:Male,Female',
          'dob' => 'required|date',
          'email' => 'required|string|email|max:255|unique:users',
          'password' => 'required|string|min:3|confirmed',
       ]);
-      $student = User::create([
+      $student = StudentInfoModel::create([
          'name' => $validate['name'],
          'gender' => $validate['gender'],
          'dob' => $validate['dob'],
@@ -65,7 +66,7 @@ class TeacherController extends Controller
          'name' => 'string|max:255',
          'gender' => 'in:male,female',
          'dob' => 'date',
-         'C++_score' => 'required|float',
+         'Cpp_score' => 'required|float',
          'C_score' => 'required|float',
       ]);
       $student = StudentInfoModel::find($id);
@@ -87,7 +88,7 @@ class TeacherController extends Controller
       if (isset($val['C_score'])) {
          $student->C_score = $val['C_score'];
       }
-      $student->save();
+      $student->update();
       return response()->json([
          'student updated' => $student
       ]);

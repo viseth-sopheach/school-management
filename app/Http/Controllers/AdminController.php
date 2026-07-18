@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use http\Client\Curl\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -44,7 +44,7 @@ class AdminController extends Controller
    public function update(Request $request, User $user)
    {
       $val = $request->validate([
-         'role' => 'required:exists:users,role',
+         'role' => 'required|in:admin,teacher,student',
       ]);
       $user->update([
          'role' => $val['role'],

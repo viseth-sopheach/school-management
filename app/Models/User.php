@@ -15,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
    /** @use HasFactory<UserFactory> */
-   use HasFactory, Notifiable;
+   use HasFactory, Notifiable, hasApiTokens;
 
    /**
     * Get the attributes that should be cast.
@@ -26,15 +26,20 @@ class User extends Authenticatable
    {
       return [
          'email_verified_at' => 'datetime',
-         'password' => 'string',
+         'password' => 'string', // hash when complete this project
       ];
    }
 
    protected $fillable = [
-      'id',
       'name',
       'email',
       'password',
+      'role',
+   ];
+
+   protected $hidden = [
+//      'password',
+//      'remember_token',
    ];
 
 }

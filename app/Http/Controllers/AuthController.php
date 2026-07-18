@@ -25,7 +25,7 @@ class AuthController extends Controller
       $validated = $request->validate([
          'name' => 'required|string|max:255',
          'email' => 'required|email|unique:users,email',
-         'password' => 'required|min:8',
+         'password' => 'required|min:3',
          'role' => 'required|in:admin,teacher,student',
       ]);
 
@@ -78,7 +78,7 @@ class AuthController extends Controller
          'password' => 'min:3',
       ]);
       $user = Auth::user();
-      $user->save($validate);
+      $user->update($validate);
       return response()->json([
          'message' => 'Profile updated successfully',
       ]);
