@@ -1,38 +1,51 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StudentController;
 use \App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\AdminController;
 
-// admin
-Route::prefix('admin')->controller(AdminController::class)->group(function () {
-   Route::get('/', 'index');
-   Route::get('/getUsers', 'getAllUsers');
-   Route::post('/createClass', 'store');
-   Route::put('/update', 'update');
-   Route::delete('/delete', 'delete');
+// auth
+Route::controller(AuthController::class)->prefix('auth')->group(function () {
+   Route::post('/register', 'register')->name('auth.register')
+      ->middleware('throttle:5,1');
+   Route::post('/login', 'login')->name('auth.login')
+      ->middleware('throttle:5,1');
 });
 
-// teacher
 Route::middleware('auth:sanctum')->group(function () {
-   Route::prefix('teacher')->controller(TeacherController::class)->group(function () {
-      Route::get('/', 'index');
-      Route::post('addStudent', 'addStudent');
-      Route::post('insertScore', 'score');
-      Route::put('/update', 'update');
-      Route::delete('/delete', 'delete');
-   });
-});
 
-// normal user
-Route::prefix('acc')->controller(AuthController::class)->group(function () {
-   Route::post('/register', 'register');
-   Route::post('/login', 'login');
-   Route::middleware('auth:sanctum')->group(function () {
-      Route::get('/me/{id}', 'me');
-      Route::put('/update', 'update');
-      Route::delete('/delete', 'delete');
-      Route::post('/logout', 'logout');
+   // Authenticated
+   Route::controller(AuthController::class)->prefix('auth')->group(function () {
+      Route::get('/me', 'me')->name('auth.me');
+      Route::put('/profile', 'updateProfile')->name('auth.profile.update');
+      Route::post('/logout', 'logout')->name('auth.logout');
+   });
+
+   // Admin
+   Route::middleware('role:admin')->prefix('admin')->controller(AdminController::class)->group(function () {
+      Route::get('/', 'index')->name('admin.dashboard');
+      Route::get('/users', 'getAllUsers')->name('admin.users.index');
+      Route::post('/classes', 'store')->name('admin.classes.store');
+      Route::put('/users/{user}', 'update')->name('admin.users.update');
+      Route::delete('/users/{user}', 'delete')->name('admin.users.destroy');
+   });
+
+   // Teacher
+   Route::middleware('role:teacher')->prefix('teacher')->controller(TeacherController::class)->group(function () {
+      Route::get('/', 'index')->name('teacher.dashboard');
+      Route::get('/me', 'me')->name('teacher.me');
+      Route::post('/students', 'addStudent')->name('teacher.students.store');
+      Route::post('/scores', 'score')->name('teacher.scores.store');
+      Route::put('/{id}', 'update')->name('teacher.update');
+      Route::delete('/{id}', 'delete')->name('teacher.destroy');
+   });
+
+   // Student
+   Route::middleware('role:student')->prefix('student')->controller(StudentController::class)->group(function () {
+      Route::get('/me', 'me')->name('student.me');
+      Route::get('/grade', 'grade')->name('student.grade');
+      Route::post('/logout', 'logout')->name('student.logout');
    });
 });

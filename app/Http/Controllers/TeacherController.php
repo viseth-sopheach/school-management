@@ -17,6 +17,15 @@ class TeacherController extends Controller
       ]);
    }
 
+   public function me(Request $id)
+   {
+      $user = Auth::user($id);
+      return response()->json([
+         'me' => $user
+      ]);
+   }
+
+
    public function addStudent(Request $req)
    {
       $validate = $req->validate([
@@ -44,7 +53,7 @@ class TeacherController extends Controller
          'C++_score' => 'required|float',
          'C_score' => 'required|float',
       ]);
-      $val = StudentInfoModel::created($val);
+      $val = StudentInfoModel::create($val);
       return response()->json([
          'student score' => $val
       ]);
