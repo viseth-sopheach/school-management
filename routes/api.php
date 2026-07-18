@@ -8,10 +8,8 @@ use \App\Http\Controllers\AdminController;
 
 // auth
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
-   Route::post('/register', 'register')->name('auth.register')
-      ->middleware('throttle:5,1');
-   Route::post('/login', 'login')->name('auth.login')
-      ->middleware('throttle:5,1');
+   Route::post('/register', 'register')->name('auth.register');
+   Route::post('/login', 'login')->name('auth.login')->middleware('throttle:5,1');
 });
 
 Route::middleware('auth:sanctum')->group(function () {
