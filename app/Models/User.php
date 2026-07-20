@@ -27,7 +27,7 @@ class User extends Authenticatable
    {
       return [
          'email_verified_at' => 'datetime',
-         'password' => 'string', // hash when complete this project
+         'password' => 'hashed',
       ];
    }
 
@@ -39,8 +39,8 @@ class User extends Authenticatable
    ];
 
    protected $hidden = [
-//      'password',
-//      'remember_token',
+      'password',
+      'remember_token',
    ];
 
 }

@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use function Laravel\Prompts\password;
-
-//use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -26,14 +23,14 @@ class AuthController extends Controller
          'name' => 'required|string|max:255',
          'email' => 'required|email|unique:users,email',
          'password' => 'required|min:3',
-         'role' => 'required|in:admin,teacher,student',
+         'role' => 'sometimes|in:admin,teacher,student',
       ]);
 
       $user = User::create([
          'name' => $validated['name'],
          'email' => $validated['email'],
-         'password' => Hash::make($validated['password']),
-         'role' => 'student',
+         'password' => $validated['password'],
+         'role' => $validated['role'] ?? 'student',
       ]);
 
       $token = $user->createToken('api-token')->plainTextToken;
