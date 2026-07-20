@@ -17,3 +17,29 @@ body {
   color: var(--color-text);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-text);
+  border-radius: 9999px;
+  border: 2px solid var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
+  background: color-mix(in srgb, var(--color-text) 85%, white 15%);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-text) var(--color-bg);
+}
