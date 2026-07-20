@@ -5,7 +5,7 @@ export const SidebarContext = createContext(null);
 const STORAGE_KEY = "sidebar-collapsed";
 
 export function SidebarProvider({ children }) {
-  const [isOpen, setIsOpen] = useState(false); // mobile overlay
+  const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem(STORAGE_KEY) === "true";
   });

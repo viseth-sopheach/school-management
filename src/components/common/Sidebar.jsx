@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { FiUsers } from "@react-icons/all-files/fi/FiUsers";
 import { FiGrid } from "@react-icons/all-files/fi/FiGrid";
 import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
+import { FiUser } from "@react-icons/all-files/fi/FiUser";
 import { FiX } from "@react-icons/all-files/fi/FiX";
 import { useAuth } from "../../hooks/useAuth";
 import { useSidebar } from "../../hooks/useSidebar";
@@ -12,7 +13,10 @@ const ROLE_LINKS = {
     { to: "/admin/classes", label: "Classes", icon: FiGrid },
   ],
   teacher: [{ to: "/teacher", label: "Dashboard", icon: FiGrid }],
-  student: [{ to: "/student", label: "Dashboard", icon: FiBookOpen }],
+  student: [
+    { to: "/student", label: "Dashboard", icon: FiBookOpen, end: true },
+    { to: "/student/me", label: "My Info", icon: FiUser },
+  ],
 };
 
 export default function Sidebar() {
@@ -37,7 +41,7 @@ export default function Sidebar() {
           isOpen ? "translate-x-0" : "-translate-x-full"
         } ${isCollapsed ? "md:w-16" : "md:w-60"}`}
       >
-        <div className="mx-10 flex items-center justify-between px-4 py-4">
+        <div className="flex items-center justify-between px-4 py-4">
           {!isCollapsed && <span className="font-semibold">Menu</span>}
           <button
             onClick={closeSidebar}
@@ -48,11 +52,12 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <nav className="mx-6 flex flex-col gap-1 px-2">
-          {links.map(({ to, label, icon: Icon }) => (
+        <nav className="flex flex-col gap-1 px-2">
+          {links.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
+              end={end}
               onClick={closeSidebar}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition ${
