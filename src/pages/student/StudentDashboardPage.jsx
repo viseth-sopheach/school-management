@@ -16,9 +16,13 @@ export default function StudentDashboardPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="page">
-      <h1>My Dashboard</h1>
-      <GradeCard grade={grade} />
-    </div>
+    <section className="space-y-6">
+      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+        My Dashboard
+      </h1>
+      <div className="max-w-sm">
+        <GradeCard grade={grade} />
+      </div>
+    </section>
   );
 }

@@ -8,7 +8,11 @@ export default function RoleSelect({ value, onChange, disabled }) {
       disabled={disabled}
     >
       {ROLES.map((role) => (
-        <option key={role} value={role}>
+        <option
+          key={role}
+          value={role}
+          className="bg-[#dfd3c3] text-[#16120f] dark:bg-[#16120f] dark:text-[#dfd3c3]"
+        >
           {role}
         </option>
       ))}

@@ -49,16 +49,27 @@ export default function ClassDetailPage() {
   };
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <p className="form-error">{error}</p>;
+  if (error)
+    return (
+      <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+        {error}
+      </p>
+    );
 
   return (
-    <div className="page">
-      <h1>{classData?.name}</h1>
-      <StudentTable
-        students={classData?.students || []}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-    </div>
+    <section>
+      <div className="rounded-2xl border border-black/10 bg-white/40 p-4 shadow-lg backdrop-blur-md sm:p-6 dark:border-white/10 dark:bg-white/5">
+        <h1 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl">
+          {classData?.name}
+        </h1>
+        <div className="overflow-x-auto">
+          <StudentTable
+            students={classData?.students || []}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        </div>
+      </div>
+    </section>
   );
 }

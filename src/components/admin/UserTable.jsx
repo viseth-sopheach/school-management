@@ -46,7 +46,7 @@ export default function UserTable({ users, onRoleChange, onDelete }) {
 
                 <td className="px-6 py-4 text-sm opacity-80">{user.email}</td>
 
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-[var(--color-text)]">
                   <RoleSelect
                     value={user.role}
                     disabled={updatingId === user.id}
