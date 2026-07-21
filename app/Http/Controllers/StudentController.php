@@ -9,7 +9,7 @@ class StudentController extends Controller
 {
    public function me(Request $request)
    {
-      $student = StudentInfoModel::where('user_id', $request->user()->id)->firstOrFail();
+      $student = StudentInfoModel::where('user_id', $request->user()->id)->first();
       return response()->json(['me' => $student]);
    }
 

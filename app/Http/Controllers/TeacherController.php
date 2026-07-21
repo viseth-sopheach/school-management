@@ -7,6 +7,7 @@ use App\Models\StudentInfoModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
@@ -36,13 +37,23 @@ class TeacherController extends Controller
          'email' => 'required|string|email|max:255|unique:users',
          'password' => 'required|string|min:3|confirmed',
       ]);
-      $student = StudentInfoModel::create([
-         'name' => $validate['name'],
-         'gender' => $validate['gender'],
-         'dob' => $validate['dob'],
-         'email' => $validate['email'],
-         'password' => $validate['password'],
-      ]);
+
+      $student = DB::transaction(function () use ($validate) {
+         $user = User::create([
+            'name' => $validate['name'],
+            'email' => $validate['email'],
+            'password' => $validate['password'],
+            'role' => 'student',
+         ]);
+
+         return StudentInfoModel::create([
+            'user_id' => $user->id,
+            'name' => $validate['name'],
+            'gender' => $validate['gender'],
+            'dob' => $validate['dob'],
+         ]);
+      });
+
       return response()->json([
          'student created' => $student
       ]);
