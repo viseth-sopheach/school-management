@@ -13,6 +13,10 @@ import AdminClassesPage from "./pages/admin/AdminClassesPage";
 import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
 import ClassDetailPage from "./pages/teacher/ClassDetailPage";
 import StudentDashboardPage from "./pages/student/StudentDashboardPage";
+import StudentInfoPage from "./pages/student/StudentInfoPage";
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
+import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
+import StudentProfilePage from "./pages/student/StudentProfilePage";
 
 export default function App() {
   return (
@@ -72,6 +76,38 @@ export default function App() {
                         element={
                           <ProtectedRoute allowedRoles={["student"]}>
                             <StudentDashboardPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/admin/me"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <AdminProfilePage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/student/me"
+                        element={
+                          <ProtectedRoute allowedRoles={["student"]}>
+                            <StudentInfoPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/teacher/me"
+                        element={
+                          <ProtectedRoute allowedRoles={["teacher"]}>
+                            <TeacherProfilePage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/student/me"
+                        element={
+                          <ProtectedRoute allowedRoles={["student"]}>
+                            <StudentProfilePage />
                           </ProtectedRoute>
                         }
                       />
