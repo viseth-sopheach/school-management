@@ -19,6 +19,24 @@ class TeacherController extends Controller
       ]);
    }
 
+   public function myClasses(Request $request)
+   {
+      $class = ClassModel::where('teacher_id', $request->user()->id)->withCount('students')->latest('created_at')->get();
+
+      return response()->json([
+         'classes' => $class,
+      ]);
+   }
+
+   public function showClass(Request $request, int $classId)
+   {
+      $class = ClassModel::where('teacher_id', $request->user()->id)->with('students')->findOrFail($classId);
+
+      return response()->json([
+         'class' => $class,
+      ]);
+   }
+
    public function me(Request $id)
    {
       $user = Auth::user($id);
@@ -31,6 +49,7 @@ class TeacherController extends Controller
    public function addStudent(Request $req)
    {
       $validate = $req->validate([
+         'class_id' => 'required|exists:classes,id',
          'name' => 'required|string|max:255',
          'gender' => 'required|in:Male,Female',
          'dob' => 'required|date',
@@ -38,7 +57,11 @@ class TeacherController extends Controller
          'password' => 'required|string|min:3|confirmed',
       ]);
 
-      $student = DB::transaction(function () use ($validate) {
+      $class = ClassModel::where('id', $validate['class_id'])
+         ->where('teacher_id', $req->user()->id)
+         ->firstOrFail();
+
+      $student = DB::transaction(function () use ($validate, $class) {
          $user = User::create([
             'name' => $validate['name'],
             'email' => $validate['email'],
@@ -48,6 +71,7 @@ class TeacherController extends Controller
 
          return StudentInfoModel::create([
             'user_id' => $user->id,
+            'class_id' => $class->id,
             'name' => $validate['name'],
             'gender' => $validate['gender'],
             'dob' => $validate['dob'],
@@ -55,7 +79,7 @@ class TeacherController extends Controller
       });
 
       return response()->json([
-         'student created' => $student
+         'student created' => $student,
       ]);
    }
 
