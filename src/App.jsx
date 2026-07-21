@@ -16,7 +16,6 @@ import StudentDashboardPage from "./pages/student/StudentDashboardPage";
 import StudentInfoPage from "./pages/student/StudentInfoPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
-import StudentProfilePage from "./pages/student/StudentProfilePage";
 
 export default function App() {
   return (
