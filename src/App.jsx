@@ -13,9 +13,7 @@ import AdminClassesPage from "./pages/admin/AdminClassesPage";
 import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
 import ClassDetailPage from "./pages/teacher/ClassDetailPage";
 import StudentDashboardPage from "./pages/student/StudentDashboardPage";
-import StudentInfoPage from "./pages/student/StudentInfoPage";
-import AdminProfilePage from "./pages/admin/AdminProfilePage";
-import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
+import ProfilePage from "./pages/ProfilePage";
 
 export default function App() {
   return (
@@ -82,7 +80,7 @@ export default function App() {
                         path="/admin/me"
                         element={
                           <ProtectedRoute allowedRoles={["admin"]}>
-                            <AdminProfilePage />
+                            <ProfilePage />
                           </ProtectedRoute>
                         }
                       />
@@ -90,7 +88,7 @@ export default function App() {
                         path="/student/me"
                         element={
                           <ProtectedRoute allowedRoles={["student"]}>
-                            <StudentInfoPage />
+                            <ProfilePage />
                           </ProtectedRoute>
                         }
                       />
@@ -98,7 +96,7 @@ export default function App() {
                         path="/teacher/me"
                         element={
                           <ProtectedRoute allowedRoles={["teacher"]}>
-                            <TeacherProfilePage />
+                            <ProfilePage />
                           </ProtectedRoute>
                         }
                       />
@@ -106,7 +104,7 @@ export default function App() {
                         path="/student/me"
                         element={
                           <ProtectedRoute allowedRoles={["student"]}>
-                            <StudentInfoPage />
+                            <ProfilePage />
                           </ProtectedRoute>
                         }
                       />
