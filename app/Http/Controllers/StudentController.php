@@ -7,12 +7,10 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-   public function me(Request $request, int $id)
+   public function me(Request $request)
    {
-      $student = StudentInfoModel::findOrFail($id);
-      return response()->json([
-         'me' => $student
-      ]);
+      $student = StudentInfoModel::where('user_id', $request->user()->id)->firstOrFail();
+      return response()->json(['me' => $student]);
    }
 
    public function grade(Request $request, int $id)
