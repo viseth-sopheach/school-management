@@ -107,7 +107,7 @@ export default function App() {
                         path="/student/me"
                         element={
                           <ProtectedRoute allowedRoles={["student"]}>
-                            <StudentProfilePage />
+                            <StudentInfoPage />
                           </ProtectedRoute>
                         }
                       />
