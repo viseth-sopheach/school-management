@@ -24,6 +24,15 @@ export default function StudentInfoPage() {
     );
   }
 
+  if (!info) {
+    return (
+      <p className="rounded-lg border border-black/10 bg-black/5 px-4 py-3 text-sm opacity-70 dark:border-white/10 dark:bg-white/10">
+        No student record is linked to your account yet. Ask your teacher to add
+        you as a student.
+      </p>
+    );
+  }
+
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">My Info</h1>
