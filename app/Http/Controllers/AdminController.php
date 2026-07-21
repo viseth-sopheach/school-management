@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClassModel;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -23,21 +24,39 @@ class AdminController extends Controller
       ]);
    }
 
+   public function getTeachers()
+   {
+      $teachers = User::where('role', 'teacher')->get(['id', 'name', 'email']);
+
+      return response()->json([
+         'teachers' => $teachers,
+      ]);
+   }
+
+   public function getAllClasses()
+   {
+      $classes = ClassModel::withCount('students')
+         ->with('teacher:id,name,email')
+         ->latest('created_at')
+         ->get();
+
+      return response()->json([
+         'classes' => $classes,
+      ]);
+   }
+
    public function store(Request $req)
    {
       $val = $req->validate([
          'name' => 'required|string|max:255',
-         'email' => 'required|string|email|max:255|unique:users',
-         'password' => 'required|string|min:3|confirmed',
+         'teacher_id' => 'nullable|exists:users,id',
       ]);
-      $user = User::create([
-         'name' => $val['name'],
-         'email' => $val['email'],
-         'password' => $val['password'],
-      ]);
+
+      $class = ClassModel::create($val);
+
       return response()->json([
-         'message' => 'User created',
-         'user' => $user
+         'message' => 'Class created',
+         'class' => $class->load('teacher'),
       ]);
    }
 

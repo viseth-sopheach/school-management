@@ -24,6 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
    Route::middleware('role:admin')->prefix('admin')->controller(AdminController::class)->group(function () {
       Route::get('/', 'index')->name('admin.dashboard');
       Route::get('/users', 'getAllUsers')->name('admin.users.index');
+      Route::get('/teachers', 'getTeachers')->name('admin.teachers.index');
+      Route::get('/classes', 'getAllClasses')->name('admin.classes.index');
       Route::post('/classes', 'store')->name('admin.classes.store');
       Route::put('/users/{user}', 'update')->name('admin.users.update');
       Route::delete('/users/{user}', 'delete')->name('admin.users.destroy');
