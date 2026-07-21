@@ -7,3 +7,5 @@ export const register = (data) => axiosClient.post("/auth/register", data);
 export const logout = () => axiosClient.post("/auth/logout");
 
 export const getCurrentUser = () => axiosClient.get("/auth/me");
+
+export const updateProfile = (data) => axiosClient.put("/auth/profile", data);
