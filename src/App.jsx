@@ -5,7 +5,6 @@ import { SidebarProvider } from "./context/SidebarContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import Navbar from "./components/common/Navbar";
 import Sidebar from "./components/common/Sidebar";
-
 import Welcome from "./pages/Welcome";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";

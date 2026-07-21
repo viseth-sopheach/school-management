@@ -15,7 +15,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -47,6 +47,22 @@ export default function Navbar() {
             <FiMoon className="h-4 w-4" />
           )}
         </button>
+
+        {user && (
+          <button
+            onClick={() => navigate(`/${user.role}/me`)}
+            className="px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+            style={{
+              color: "var(--color-text)",
+              backgroundColor:
+                "color-mix(in srgb, var(--color-text) 10%, var(--color-bg) 90%)",
+              border:
+                "1px solid color-mix(in srgb, var(--color-text) 20%, transparent)",
+            }}
+          >
+            {user.name}
+          </button>
+        )}
 
         {user ? (
           <button

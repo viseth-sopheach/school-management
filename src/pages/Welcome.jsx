@@ -12,9 +12,9 @@ export default function Welcome() {
 
   return (
     <section className="flex min-h-[75vh] flex-col items-center justify-center px-4 py-12 text-center">
-      <span className="mb-4 rounded-full bg-black/5 px-4 py-1.5 text-xs font-medium tracking-wide uppercase opacity-70 dark:bg-white/10">
+      {/* <span className="mb-4 rounded-full bg-black/5 px-4 py-1.5 text-xs font-medium tracking-wide uppercase opacity-70 dark:bg-white/10">
         School Management System
-      </span>
+      </span> */}
 
       <h1 className="max-w-2xl text-3xl font-bold tracking-tight sm:text-5xl">
         Welcome to Viseth's School Management System
