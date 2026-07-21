@@ -9,8 +9,9 @@ import { useSidebar } from "../../hooks/useSidebar";
 
 const ROLE_LINKS = {
   admin: [
-    { to: "/admin/users", label: "Users", icon: FiUsers },
+    { to: "/admin", label: "Dashboard", icon: FiGrid, end: true },
     { to: "/admin/classes", label: "Classes", icon: FiGrid },
+    { to: "/admin/users", label: "Users", icon: FiUsers },
   ],
   teacher: [{ to: "/teacher", label: "Dashboard", icon: FiGrid }],
   student: [

@@ -1,11 +1,20 @@
-import { useState } from "react";
-import { createClass } from "../../api/adminApi";
+import { useEffect, useState } from "react";
+import { createClass, getTeachers } from "../../api/adminApi";
 import CreateClassForm from "../../components/admin/CreateClassForm";
 
 export default function AdminClassesPage() {
+  const [teachers, setTeachers] = useState([]);
+  const [teachersLoading, setTeachersLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    getTeachers()
+      .then(({ data }) => setTeachers(data.teachers))
+      .catch(() => setError("Failed to load teacher list."))
+      .finally(() => setTeachersLoading(false));
+  }, []);
 
   const handleCreate = async (data) => {
     setLoading(true);
@@ -16,7 +25,10 @@ export default function AdminClassesPage() {
       await createClass(data);
       setSuccess("Class created successfully!");
     } catch (err) {
-      setError("Failed to create class. Please try again.");
+      setError(
+        err.response?.data?.message ||
+          "Failed to create class. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -31,12 +43,11 @@ export default function AdminClassesPage() {
               Classes
             </h1>
             <p className="mt-1 text-sm opacity-70">
-              Create and manage new academic classes.
+              Create a class and assign a teacher to lead it.
             </p>
           </div>
 
           <div className="p-6">
-            {/* Error Notification */}
             {error && (
               <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
                 {error}
@@ -49,7 +60,15 @@ export default function AdminClassesPage() {
               </div>
             )}
 
-            <CreateClassForm onCreate={handleCreate} isLoading={loading} />
+            {teachersLoading ? (
+              <p className="text-sm opacity-70">Loading teachers...</p>
+            ) : (
+              <CreateClassForm
+                onCreate={handleCreate}
+                teachers={teachers}
+                isLoading={loading}
+              />
+            )}
 
             <div className="mt-8 rounded-xl border border-black/5 bg-black/5 p-4 text-sm opacity-70 dark:border-white/5 dark:bg-white/5">
               <p>
