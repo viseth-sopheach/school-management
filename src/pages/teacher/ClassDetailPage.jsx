@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getClass, updateStudent, deleteStudent } from "../../api/teacherApi";
+import {
+  getClass,
+  addStudent,
+  updateStudent,
+  deleteStudent,
+} from "../../api/teacherApi";
 import StudentTable from "../../components/teacher/StudentTable";
+import AddStudentForm from "../../components/teacher/AddStudentForm";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 export default function ClassDetailPage() {
@@ -26,6 +32,11 @@ export default function ClassDetailPage() {
   useEffect(() => {
     loadClass();
   }, [classId]);
+
+  const handleAddStudent = async (form) => {
+    await addStudent(form);
+    await loadClass();
+  };
 
   const handleDelete = async (studentId) => {
     if (!window.confirm("Delete this student?")) return;
@@ -57,7 +68,7 @@ export default function ClassDetailPage() {
     );
 
   return (
-    <section>
+    <section className="space-y-6">
       <div className="rounded-2xl border border-black/10 bg-white/40 p-4 shadow-lg backdrop-blur-md sm:p-6 dark:border-white/10 dark:bg-white/5">
         <h1 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl">
           {classData?.name}
@@ -69,6 +80,10 @@ export default function ClassDetailPage() {
             onDelete={handleDelete}
           />
         </div>
+      </div>
+
+      <div className="rounded-2xl border border-black/10 bg-white/40 p-4 shadow-lg backdrop-blur-md sm:p-6 dark:border-white/10 dark:bg-white/5">
+        <AddStudentForm classId={classId} onAdd={handleAddStudent} />
       </div>
     </section>
   );
