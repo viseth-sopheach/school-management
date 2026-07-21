@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class StudentInfoModel extends Model
 {
    protected $fillable = [
+      'user_id',
       'class_id',
       'name',
       'gender',
@@ -21,5 +22,10 @@ class StudentInfoModel extends Model
    public function classes()
    {
       return $this->belongsTo(ClassModel::class, 'class_id');
+   }
+
+   public function user()
+   {
+      return $this->belongsTo(User::class);
    }
 }

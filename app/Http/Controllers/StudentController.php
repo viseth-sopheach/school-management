@@ -13,12 +13,10 @@ class StudentController extends Controller
       return response()->json(['me' => $student]);
    }
 
-   public function grade(Request $request, int $id)
+   public function grade(Request $request)
    {
-      $grade = StudentInfoModel::where('id', $id)->value('grade');
-      return response()->json([
-         'grade' => $grade
-      ]);
+      $grade = StudentInfoModel::where('user_id', $request->user()->id)->value('grade');
+      return response()->json(['grade' => $grade]);
    }
 
    public function logout(Request $request, int $id)

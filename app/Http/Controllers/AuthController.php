@@ -8,12 +8,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-   public function me(Request $request, int $id)
+   public function me(Request $request)
    {
-      Auth::user();
-      $user = User::find($id);
       return response()->json([
-         'me' => $user
+         'me' => $request->user()
       ]);
    }
 
