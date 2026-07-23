@@ -85,6 +85,42 @@ class TeacherController extends Controller
       ]);
    }
 
+   public function availableStudents()
+   {
+      $students = StudentInfoModel::whereNull('class_id')
+         ->get(['id', 'name', 'gender']);
+
+      return response()->json([
+         'students' => $students,
+      ]);
+   }
+
+   public function attachStudent(Request $request, ClassModel $class)
+   {
+      if ($class->teacher_id !== $request->user()->id) {
+         abort(403, 'You are not authorized to modify this class.');
+      }
+
+      $val = $request->validate([
+         'student_id' => 'required|integer|exists:student_info,id',
+      ]);
+
+      $student = StudentInfoModel::find($val['student_id']);
+
+      if ($student->class_id) {
+         return response()->json([
+            'message' => 'This student is already enrolled in a class.',
+         ], 422);
+      }
+
+      $student->update(['class_id' => $class->id]);
+
+      return response()->json([
+         'message' => 'Student added to class successfully.',
+         'student' => $student,
+      ]);
+   }
+
    public function score(Request $req)
    {
       $val = $req->validate([
@@ -117,6 +153,10 @@ class TeacherController extends Controller
          $student->grade = ($student->Cpp_score + $student->C_score) / 2;
       }
       $student->save();
+
+      if (isset($val['name']) && $student->user_id) {
+         $student->user()->update(['name' => $val['name']]);
+      }
 
       return response()->json([
          'student updated' => $student,
