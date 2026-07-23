@@ -1,7 +1,7 @@
 export default function StudentTable({
   students,
   onEdit,
-  onDelete,
+  onRemove,
   onApproveCertificate,
 }) {
   if (students.length === 0) {
@@ -13,6 +13,7 @@ export default function StudentTable({
       </div>
     );
   }
+
   function formatDob(date) {
     if (!date) return "-";
     const d = new Date(date);
@@ -52,16 +53,16 @@ export default function StudentTable({
                   {student.name}
                 </td>
                 <td className="px-6 py-4 opacity-80">{student.gender}</td>
-                <td className="px-6 py-4 opacity-80">{formatDob(student.dob)}</td>
+                <td className="px-6 py-4 opacity-80">
+                  {formatDob(student.dob)}
+                </td>
                 <td className="px-6 py-4 opacity-80">
                   {student.Cpp_score ?? "-"}
                 </td>
                 <td className="px-6 py-4 opacity-80">
                   {student.C_score ?? "-"}
                 </td>
-                <td className="px-6 py-4 opacity-80">
-                  {student.grade ?? "-"}
-                </td>
+                <td className="px-6 py-4 opacity-80">{student.grade ?? "-"}</td>
 
                 <td className="px-6 py-4">
                   {student.certificate_status === "approved" ? (
@@ -89,10 +90,11 @@ export default function StudentTable({
                       Edit
                     </button>
                     <button
-                      onClick={() => onDelete(student.id)}
-                      className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700"
+                      onClick={() => onRemove(student.id)}
+                      title="Removes the student from this class only; their account is kept"
+                      className="rounded-lg bg-orange-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-orange-700"
                     >
-                      Delete
+                      Remove from Class
                     </button>
                   </div>
                 </td>

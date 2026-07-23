@@ -47,7 +47,7 @@ export default function MyClassesTable({ classes }) {
                     to={`/teacher/classes/${classItem.id}`}
                     className="rounded-lg bg-[var(--color-text)] px-4 py-2 text-sm font-medium text-[var(--color-bg)] transition hover:opacity-90"
                   >
-                    View Roster
+                    View class
                   </Link>
                 </td>
               </tr>

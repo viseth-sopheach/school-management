@@ -3,10 +3,12 @@ import { useParams } from "react-router-dom";
 import {
   getClass,
   updateStudent,
-  deleteStudent,
+  addStudent,
   approveCertificate,
+  removeStudentFromClass,
 } from "../../api/teacherApi";
 import StudentTable from "../../components/teacher/StudentTable";
+import AddStudentForm from "../../components/teacher/AddStudentForm";
 import LoadingTable from "../../components/common/LoadingTable";
 
 export default function ClassDetailPage() {
@@ -33,13 +35,38 @@ export default function ClassDetailPage() {
     loadClass();
   }, [classId]);
 
-  const handleDelete = async (studentId) => {
-    if (!window.confirm("Delete this student?")) return;
-    await deleteStudent(studentId);
+  const handleAddStudent = async (formValues) => {
+    // formValues already includes class_id, added by AddStudentForm.
+    const { data } = await addStudent(formValues);
+
     setClassData((prev) => ({
       ...prev,
-      students: prev.students.filter((s) => s.id !== studentId),
+      students: [...(prev.students || []), data.student],
     }));
+  };
+
+  const handleRemoveFromClass = async (studentId) => {
+    if (
+      !window.confirm(
+        "Remove this student from the class? Their account and records will not be deleted.",
+      )
+    ) {
+      return;
+    }
+
+    setActionError("");
+
+    try {
+      await removeStudentFromClass(classId, studentId);
+      setClassData((prev) => ({
+        ...prev,
+        students: prev.students.filter((s) => s.id !== studentId),
+      }));
+    } catch (err) {
+      setActionError(
+        err.response?.data?.message || "Failed to remove student from class.",
+      );
+    }
   };
 
   const handleEdit = async (student) => {
@@ -109,14 +136,20 @@ export default function ClassDetailPage() {
             <LoadingTable rows={6} />
           ) : (
             !error && (
-              <div className="overflow-x-auto">
-                <StudentTable
-                  students={classData?.students || []}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onApproveCertificate={handleApproveCertificate}
-                />
-              </div>
+              <>
+                <div className="mb-6 rounded-xl border border-black/10 p-4 dark:border-white/10">
+                  <AddStudentForm classId={classId} onAdd={handleAddStudent} />
+                </div>
+
+                <div className="overflow-x-auto">
+                  <StudentTable
+                    students={classData?.students || []}
+                    onEdit={handleEdit}
+                    onRemove={handleRemoveFromClass}
+                    onApproveCertificate={handleApproveCertificate}
+                  />
+                </div>
+              </>
             )
           )}
         </div>

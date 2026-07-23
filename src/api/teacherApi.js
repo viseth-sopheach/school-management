@@ -16,4 +16,7 @@ export const deleteStudent = (id) => axiosClient.delete(`/teacher/${id}`);
 export const approveCertificate = (studentId) =>
   axiosClient.put(`/teacher/students/${studentId}/certificate/approve`);
 
+export const removeStudentFromClass = (classId, studentId) =>
+  axiosClient.delete(`/teacher/classes/${classId}/students/${studentId}`);
+
 export const getMe = () => axiosClient.get("/auth/me");
