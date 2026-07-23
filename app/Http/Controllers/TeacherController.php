@@ -19,24 +19,6 @@ class TeacherController extends Controller
       ]);
    }
 
-   public function myClasses(Request $request)
-   {
-      $class = ClassModel::where('teacher_id', $request->user()->id)->withCount('students')->latest('created_at')->get();
-
-      return response()->json([
-         'classes' => $class,
-      ]);
-   }
-
-   public function showClass(Request $request, int $classId)
-   {
-      $class = ClassModel::where('teacher_id', $request->user()->id)->with('students')->findOrFail($classId);
-
-      return response()->json([
-         'class' => $class,
-      ]);
-   }
-
    public function me(Request $id)
    {
       $user = Auth::user($id);
@@ -49,7 +31,6 @@ class TeacherController extends Controller
    public function addStudent(Request $req)
    {
       $validate = $req->validate([
-         'class_id' => 'required|exists:classes,id',
          'name' => 'required|string|max:255',
          'gender' => 'required|in:Male,Female',
          'dob' => 'required|date',
@@ -57,11 +38,7 @@ class TeacherController extends Controller
          'password' => 'required|string|min:3|confirmed',
       ]);
 
-      $class = ClassModel::where('id', $validate['class_id'])
-         ->where('teacher_id', $req->user()->id)
-         ->firstOrFail();
-
-      $student = DB::transaction(function () use ($validate, $class) {
+      $student = DB::transaction(function () use ($validate) {
          $user = User::create([
             'name' => $validate['name'],
             'email' => $validate['email'],
@@ -71,7 +48,6 @@ class TeacherController extends Controller
 
          return StudentInfoModel::create([
             'user_id' => $user->id,
-            'class_id' => $class->id,
             'name' => $validate['name'],
             'gender' => $validate['gender'],
             'dob' => $validate['dob'],
@@ -79,7 +55,7 @@ class TeacherController extends Controller
       });
 
       return response()->json([
-         'student created' => $student,
+         'student created' => $student
       ]);
    }
 
@@ -139,5 +115,41 @@ class TeacherController extends Controller
          $student->delete();
          return response()->json(['message' => 'Student deleted']);
       }
+   }
+
+   // Approve a student's certificate.
+   public function approveCertificate(Request $request, int $studentId)
+   {
+      $student = StudentInfoModel::with('classes')->find($studentId);
+
+      if (!$student) {
+         return response()->json(['message' => 'Student not found'], 404);
+      }
+
+      $isOwnClass = $student->classes && $student->classes->teacher_id === $request->user()->id;
+
+      if (!$isOwnClass) {
+         return response()->json([
+            'message' => "You are not authorized to approve this student's certificate.",
+         ], 403);
+      }
+
+      if ($student->certificate_status === 'approved') {
+         return response()->json([
+            'message' => 'Certificate has already been approved.',
+            'student' => $student,
+         ]);
+      }
+
+      $student->update([
+         'certificate_status' => 'approved',
+         'certificate_approved_at' => now(),
+         'certificate_approved_by' => $request->user()->id,
+      ]);
+
+      return response()->json([
+         'message' => 'Certificate approved successfully.',
+         'student' => $student,
+      ]);
    }
 }
