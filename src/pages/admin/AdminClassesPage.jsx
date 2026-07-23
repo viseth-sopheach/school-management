@@ -4,7 +4,6 @@ import CreateClassForm from "../../components/admin/CreateClassForm";
 
 export default function AdminClassesPage() {
   const [teachers, setTeachers] = useState([]);
-  const [teachersLoading, setTeachersLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -12,8 +11,7 @@ export default function AdminClassesPage() {
   useEffect(() => {
     getTeachers()
       .then(({ data }) => setTeachers(data.teachers))
-      .catch(() => setError("Failed to load teacher list."))
-      .finally(() => setTeachersLoading(false));
+      .catch(() => setError("Failed to load teacher list."));
   }, []);
 
   const handleCreate = async (data) => {
@@ -60,23 +58,11 @@ export default function AdminClassesPage() {
               </div>
             )}
 
-            {teachersLoading ? (
-              <p className="text-sm opacity-70">Loading teachers...</p>
-            ) : (
-              <CreateClassForm
-                onCreate={handleCreate}
-                teachers={teachers}
-                isLoading={loading}
-              />
-            )}
-
-            <div className="mt-8 rounded-xl border border-black/5 bg-black/5 p-4 text-sm opacity-70 dark:border-white/5 dark:bg-white/5">
-              <p>
-                <strong>Note:</strong> A list of existing classes isn't
-                available yet — the API currently has no GET endpoint for
-                classes.
-              </p>
-            </div>
+            <CreateClassForm
+              onCreate={handleCreate}
+              teachers={teachers}
+              isLoading={loading}
+            />
           </div>
         </div>
       </div>

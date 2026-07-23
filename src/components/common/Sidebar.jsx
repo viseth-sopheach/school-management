@@ -6,10 +6,11 @@ import { FiUser } from "@react-icons/all-files/fi/FiUser";
 import { FiX } from "@react-icons/all-files/fi/FiX";
 import { useAuth } from "../../hooks/useAuth";
 import { useSidebar } from "../../hooks/useSidebar";
+import { MdOutlineSpaceDashboard } from "react-icons/md";
 
 const ROLE_LINKS = {
   admin: [
-    { to: "/admin", label: "Dashboard", icon: FiGrid, end: true },
+    { to: "/admin", label: "Dashboard", icon: MdOutlineSpaceDashboard, end: true },
     { to: "/admin/classes", label: "Classes", icon: FiGrid },
     { to: "/admin/users", label: "Users", icon: FiUsers },
   ],

@@ -47,7 +47,7 @@ export default function CreateClassForm({ onCreate, teachers, isLoading }) {
           value=""
           className="bg-[#dfd3c3] text-[#16120f] dark:bg-[#16120f] dark:text-[#dfd3c3]"
         >
-          Choose Teache
+          Choose teacher
         </option>
         {teachers.map((teacher) => (
           <option
