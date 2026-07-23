@@ -1,5 +1,6 @@
 import axiosClient from "./axiosClient";
 
+export const getMyClasses = () => axiosClient.get("/teacher/classes");
 export const getClass = (classId) =>
   axiosClient.get(`/teacher/classes/${classId}`);
 
@@ -16,4 +17,3 @@ export const approveCertificate = (studentId) =>
   axiosClient.put(`/teacher/students/${studentId}/certificate/approve`);
 
 export const getMe = () => axiosClient.get("/auth/me");
-export const getMyClasses = () => axiosClient.get("/teacher/classes");
