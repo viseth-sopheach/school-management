@@ -50,7 +50,17 @@ class TeacherController extends Controller
          'dob' => 'required|date',
          'email' => 'required|string|email|max:255|unique:users',
          'password' => 'required|string|min:3|confirmed',
+         'class_id' => 'nullable|integer|exists:classes,id',
       ]);
+
+      // if a class was specified, make sure teacher owns class
+      if (!empty($validate['class_id'])) {
+         $class = ClassModel::find($validate['class_id']);
+
+         if (!$class || $class->teacher_id !== $req->user()->id) {
+            abort(403, 'You are not authorized to add students to this class.');
+         }
+      }
 
       $student = DB::transaction(function () use ($validate) {
          $user = User::create([
@@ -62,6 +72,7 @@ class TeacherController extends Controller
 
          return StudentInfoModel::create([
             'user_id' => $user->id,
+            'class_id' => $validate['class_id'] ?? null,
             'name' => $validate['name'],
             'gender' => $validate['gender'],
             'dob' => $validate['dob'],
@@ -69,7 +80,8 @@ class TeacherController extends Controller
       });
 
       return response()->json([
-         'student created' => $student,
+         'message' => 'Student created successfully.',
+         'student' => $student,
       ]);
    }
 
@@ -154,6 +166,24 @@ class TeacherController extends Controller
       return response()->json([
          'message' => 'Certificate approved successfully.',
          'student' => $student,
+      ]);
+   }
+
+   // remove a student from the teacher's class without deleting the student record
+   public function removeStudentFromClass(Request $request, ClassModel $class, StudentInfoModel $student)
+   {
+      if ($class->teacher_id !== $request->user()->id) {
+         abort(403, 'You are not authorized to modify this class.');
+      }
+
+      if ($student->class_id !== $class->id) {
+         abort(404, 'This student is not enrolled in this class.');
+      }
+
+      $student->update(['class_id' => null]);
+
+      return response()->json([
+         'message' => 'Student removed from class successfully.',
       ]);
    }
 }

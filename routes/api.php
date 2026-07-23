@@ -36,7 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
       Route::get('/me', 'me')->name('teacher.me');
       Route::get('/classes', 'myClasses')->name('teacher.classes.index');
       Route::get('/classes/{class}', 'show')->name('teacher.classes.show');
+
       Route::post('/students', 'addStudent')->name('teacher.students.store');
+      Route::delete('/classes/{class}/students/{student}', 'removeStudentFromClass')->name('teacher.classes.students.destroy');
+
       Route::post('/scores', 'score')->name('teacher.scores.store');
       Route::put('/{id}', 'update')->name('teacher.update');
       Route::delete('/{id}', 'delete')->name('teacher.destroy');

@@ -5,14 +5,18 @@
    <title>Certificate of Completion</title>
    <style>
       @page {
-         margin: 0;
+         size: A4 landscape;
+         margin: 12mm;
       }
 
       body {
-         font-family: 'Helvetica', 'Arial', sans-serif;
-         margin: 0;
-         padding: 60px;
-         color: #1b1b18;
+         font-family: Consolas, "Courier New", monospace;
+         font-size: 9pt;
+         line-height: 1.2;
+      }
+
+      pre {
+         white-space: pre;
       }
 
       .certificate {
