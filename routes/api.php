@@ -33,8 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
    // Teacher
    Route::middleware('role:teacher')->prefix('teacher')->controller(TeacherController::class)->group(function () {
-      Route::get('/', 'index')->name('teacher.dashboard');
       Route::get('/me', 'me')->name('teacher.me');
+      Route::get('/classes', 'myClasses')->name('teacher.classes.index');
+      Route::get('/classes/{class}', 'show')->name('teacher.classes.show');
       Route::post('/students', 'addStudent')->name('teacher.students.store');
       Route::post('/scores', 'score')->name('teacher.scores.store');
       Route::put('/{id}', 'update')->name('teacher.update');

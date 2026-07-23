@@ -4,29 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassModel;
 use App\Models\StudentInfoModel;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
-   public function index(Request $request, int $classId)
+   public function me(Request $request)
    {
-      $class = ClassModel::with('students')->findOrFail($classId);
       return response()->json([
-         'class' => $class
+         'me' => $request->user(),
       ]);
    }
 
-   public function me(Request $id)
+   public function myClasses(Request $request)
    {
-      $user = Auth::user($id);
+      $classes = ClassModel::withCount('students')
+         ->where('teacher_id', $request->user()->id)
+         ->latest('created_at')
+         ->get();
+
       return response()->json([
-         'me' => $user
+         'classes' => $classes,
       ]);
    }
 
+   public function show(Request $request, ClassModel $class)
+   {
+      if ($class->teacher_id !== $request->user()->id) {
+         abort(403, 'You are not authorized to view this class.');
+      }
+
+      $class->load('students');
+
+      return response()->json([
+         'class' => $class,
+      ]);
+   }
 
    public function addStudent(Request $req)
    {
@@ -55,19 +69,19 @@ class TeacherController extends Controller
       });
 
       return response()->json([
-         'student created' => $student
+         'student created' => $student,
       ]);
    }
 
    public function score(Request $req)
    {
       $val = $req->validate([
-         'C++_score' => 'required|float',
-         'C_score' => 'required|float',
+         'C++_score' => 'required|numeric',
+         'C_score' => 'required|numeric',
       ]);
       $val = StudentInfoModel::create($val);
       return response()->json([
-         'student score' => $val
+         'student score' => $val,
       ]);
    }
 
@@ -75,33 +89,21 @@ class TeacherController extends Controller
    {
       $val = $req->validate([
          'name' => 'string|max:255',
-         'gender' => 'in:male,female',
+         'gender' => 'in:Male,Female',
          'dob' => 'date',
-         'Cpp_score' => 'required|float',
-         'C_score' => 'required|float',
+         'Cpp_score' => 'nullable|numeric',
+         'C_score' => 'nullable|numeric',
       ]);
+
       $student = StudentInfoModel::find($id);
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
       }
-      if (isset($val['name'])) {
-         $student->name = $val['name'];
-      }
-      if (isset($val['gender'])) {
-         $student->gender = $val['gender'];
-      }
-      if (isset($val['dob'])) {
-         $student->dob = $val['dob'];
-      }
-      if (isset($val['Cpp_score'])) {
-         $student->{'Cpp_score'} = $val['Cpp_score'];
-      }
-      if (isset($val['C_score'])) {
-         $student->C_score = $val['C_score'];
-      }
-      $student->update();
+
+      $student->fill($val)->save();
+
       return response()->json([
-         'student updated' => $student
+         'student updated' => $student,
       ]);
    }
 
@@ -111,13 +113,11 @@ class TeacherController extends Controller
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
       }
-      if ($student) {
-         $student->delete();
-         return response()->json(['message' => 'Student deleted']);
-      }
+
+      $student->delete();
+      return response()->json(['message' => 'Student deleted']);
    }
 
-   // Approve a student's certificate.
    public function approveCertificate(Request $request, int $studentId)
    {
       $student = StudentInfoModel::with('classes')->find($studentId);
