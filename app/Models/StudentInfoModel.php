@@ -23,7 +23,9 @@ class StudentInfoModel extends Model
       'academic_status',
    ];
 
-   protected $table = 'student_info';
+    protected $table = 'student_info';
+
+    public $timestamps = false;
 
    protected function casts(): array
    {

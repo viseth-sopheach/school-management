@@ -100,7 +100,11 @@ class TeacherController extends Controller
          return response()->json(['message' => 'Student not found'], 404);
       }
 
-      $student->fill($val)->save();
+      $student->fill($val);
+      if ($student->Cpp_score !== null && $student->C_score !== null) {
+         $student->grade = ($student->Cpp_score + $student->C_score) / 2;
+      }
+      $student->save();
 
       return response()->json([
          'student updated' => $student,
