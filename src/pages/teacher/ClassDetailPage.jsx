@@ -7,7 +7,7 @@ import {
   approveCertificate,
 } from "../../api/teacherApi";
 import StudentTable from "../../components/teacher/StudentTable";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
+import LoadingTable from "../../components/common/LoadingTable";
 
 export default function ClassDetailPage() {
   const { classId } = useParams();
@@ -72,34 +72,53 @@ export default function ClassDetailPage() {
     }
   };
 
-  if (loading) return <LoadingSpinner />;
-  if (error)
-    return (
-      <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
-        {error}
-      </p>
-    );
-
   return (
     <section>
-      <div className="rounded-2xl border border-black/10 bg-white/40 p-4 shadow-lg backdrop-blur-md sm:p-6 dark:border-white/10 dark:bg-white/5">
-        <h1 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl">
-          {classData?.name}
-        </h1>
+      <div className="rounded-2xl border border-black/10 bg-white/40 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+        <div className="flex flex-col gap-3 border-b border-black/10 px-6 py-5 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              {loading ? "Loading class..." : classData?.name}
+            </h1>
+            <p className="mt-1 text-sm opacity-70">
+              Manage students and certificate approvals for this class.
+            </p>
+          </div>
 
-        {actionError && (
-          <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
-            {actionError}
-          </p>
-        )}
+          {!loading && classData && (
+            <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
+              Total Students: {classData.students?.length ?? 0}
+            </div>
+          )}
+        </div>
 
-        <div className="overflow-x-auto">
-          <StudentTable
-            students={classData?.students || []}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onApproveCertificate={handleApproveCertificate}
-          />
+        <div className="p-4 sm:p-6">
+          {error && (
+            <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+              {error}
+            </div>
+          )}
+
+          {actionError && (
+            <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+              {actionError}
+            </div>
+          )}
+
+          {loading ? (
+            <LoadingTable rows={6} />
+          ) : (
+            !error && (
+              <div className="overflow-x-auto">
+                <StudentTable
+                  students={classData?.students || []}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onApproveCertificate={handleApproveCertificate}
+                />
+              </div>
+            )
+          )}
         </div>
       </div>
     </section>
