@@ -20,3 +20,11 @@ export const removeStudentFromClass = (classId, studentId) =>
   axiosClient.delete(`/teacher/classes/${classId}/students/${studentId}`);
 
 export const getMe = () => axiosClient.get("/auth/me");
+
+export const getAvailableStudents = () =>
+  axiosClient.get("/teacher/students/available");
+
+export const attachStudent = (classId, studentId) =>
+  axiosClient.post(`/teacher/classes/${classId}/students/attach`, {
+    student_id: studentId,
+  });

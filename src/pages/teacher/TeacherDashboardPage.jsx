@@ -1,15 +1,8 @@
 import { useEffect, useState } from "react";
-import {
-  getMe,
-  getMyClasses,
-  addScore,
-  updateStudent,
-  deleteStudent,
-} from "../../api/teacherApi";
-import ScoreForm from "../../components/teacher/ScoreForm";
-import ManageStudentForm from "../../components/teacher/ManageStudentForm";
+import { getMe, getMyClasses } from "../../api/teacherApi";
 import MyClassesTable from "../../components/teacher/MyClassesTable";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import LoadingTable from "../../components/common/LoadingTable";
 
 export default function TeacherDashboardPage() {
   const [teacher, setTeacher] = useState(null);
@@ -42,6 +35,9 @@ export default function TeacherDashboardPage() {
 
       <div className="rounded-2xl border border-black/10 bg-white/40 p-4 shadow-lg backdrop-blur-md sm:p-6 dark:border-white/10 dark:bg-white/5">
         <h2 className="mb-4 text-lg font-semibold">My Classes</h2>
+        <p className="mb-4 text-sm opacity-70">
+          Open a class to add students, edit their info, and manage scores.
+        </p>
 
         {classesError && (
           <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
@@ -50,23 +46,10 @@ export default function TeacherDashboardPage() {
         )}
 
         {classesLoading ? (
-          <p className="text-sm opacity-70">Loading your classes...</p>
+          <LoadingTable rows={4} />
         ) : (
           <MyClassesTable classes={classes} />
         )}
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-2xl border border-black/10 bg-white/40 p-4 shadow-lg backdrop-blur-md sm:p-6 dark:border-white/10 dark:bg-white/5">
-          <ScoreForm onSubmit={addScore} />
-        </div>
-
-        <div className="rounded-2xl border border-black/10 bg-white/40 p-4 shadow-lg backdrop-blur-md sm:p-6 dark:border-white/10 dark:bg-white/5">
-          <ManageStudentForm
-            onUpdate={updateStudent}
-            onDelete={deleteStudent}
-          />
-        </div>
       </div>
     </section>
   );

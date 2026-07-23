@@ -49,7 +49,7 @@ export default function CertificateCard({ certificate }) {
             {certificate.school_name}
           </p>
           <h3 className="mt-4 text-2xl font-bold">Certificate of Completion</h3>
-          <p className="mt-4 text-sm opacity-70">This certifies that</p>
+          {/* <p className="mt-4 text-sm opacity-70">This certifies that</p> */}
           <p className="mt-1 text-xl font-semibold">
             {certificate.student_name}
           </p>

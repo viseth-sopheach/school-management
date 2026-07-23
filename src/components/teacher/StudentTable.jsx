@@ -3,6 +3,8 @@ export default function StudentTable({
   onEdit,
   onRemove,
   onApproveCertificate,
+  onScoreChange,
+  editingStudentId,
 }) {
   if (students.length === 0) {
     return (
@@ -47,7 +49,11 @@ export default function StudentTable({
             {students.map((student) => (
               <tr
                 key={student.id}
-                className="border-t border-black/10 transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
+                className={`border-t border-black/10 transition-colors dark:border-white/10 ${
+                  student.id === editingStudentId
+                    ? "bg-black/5 dark:bg-white/10"
+                    : "hover:bg-black/5 dark:hover:bg-white/5"
+                }`}
               >
                 <td className="px-6 py-4 font-medium whitespace-nowrap">
                   {student.name}
@@ -57,10 +63,26 @@ export default function StudentTable({
                   {formatDob(student.dob)}
                 </td>
                 <td className="px-6 py-4 opacity-80">
-                  {student.Cpp_score ?? "-"}
+                  <input
+                    type="number"
+                    step="0.1"
+                    defaultValue={student.Cpp_score ?? ""}
+                    onBlur={(e) =>
+                      onScoreChange(student.id, "Cpp_score", e.target.value)
+                    }
+                    className="w-20 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm outline-none focus:border-black/40 dark:border-white/15 dark:focus:border-white/40"
+                  />
                 </td>
                 <td className="px-6 py-4 opacity-80">
-                  {student.C_score ?? "-"}
+                  <input
+                    type="number"
+                    step="0.1"
+                    defaultValue={student.C_score ?? ""}
+                    onBlur={(e) =>
+                      onScoreChange(student.id, "C_score", e.target.value)
+                    }
+                    className="w-20 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm outline-none focus:border-black/40 dark:border-white/15 dark:focus:border-white/40"
+                  />
                 </td>
                 <td className="px-6 py-4 opacity-80">{student.grade ?? "-"}</td>
 
