@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { exportCertificate } from "../../api/studentApi";
 import { parseBlobError } from "../../utils/parseBlobError";
+import { formatDate } from "../../utils/formatDate";
 
 function CertificateSkeleton() {
   return (
@@ -96,7 +97,8 @@ export default function CertificateCard({ certificate, loading, error }) {
                 <div>
                   <p className="opacity-60">Completion Date</p>
                   <p className="font-medium">
-                    {certificate.completion_date || "Pending approval"}
+                    {formatDate(certificate.completion_date) ||
+                      "Pending approval"}
                   </p>
                 </div>
               </div>
