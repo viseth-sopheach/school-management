@@ -2,32 +2,35 @@ import { useEffect, useState } from "react";
 import { getDashboard, getCertificate } from "../../api/studentApi";
 import StudentInfoCard from "../../components/student/StudentInfoCard";
 import CertificateCard from "../../components/student/CertificateCard";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 export default function StudentDashboardPage() {
   const [student, setStudent] = useState(null);
-  const [certificate, setCertificate] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [studentLoading, setStudentLoading] = useState(true);
+  const [studentError, setStudentError] = useState("");
 
+  const [certificate, setCertificate] = useState(null);
+  const [certificateLoading, setCertificateLoading] = useState(true);
+  const [certificateError, setCertificateError] = useState("");
+
+  // Fetch each section independently so one slow/failed request
+  // doesn't block the rest of the page from rendering.
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([getDashboard(), getCertificate()])
-      .then(([dashboardRes, certificateRes]) => {
+    getDashboard()
+      .then(({ data }) => {
         if (!isMounted) return;
-        setStudent(dashboardRes.data.student);
-        setCertificate(certificateRes.data.certificate);
+        setStudent(data.student);
       })
       .catch((err) => {
         if (!isMounted) return;
-        setError(
+        setStudentError(
           err.response?.data?.message ||
-            "Failed to load your dashboard. Please try again later.",
+            "Failed to load your information. Please try again later.",
         );
       })
       .finally(() => {
-        if (isMounted) setLoading(false);
+        if (isMounted) setStudentLoading(false);
       });
 
     return () => {
@@ -35,15 +38,29 @@ export default function StudentDashboardPage() {
     };
   }, []);
 
-  if (loading) return <LoadingSpinner />;
+  useEffect(() => {
+    let isMounted = true;
 
-  if (error) {
-    return (
-      <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
-        {error}
-      </p>
-    );
-  }
+    getCertificate()
+      .then(({ data }) => {
+        if (!isMounted) return;
+        setCertificate(data.certificate);
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        setCertificateError(
+          err.response?.data?.message ||
+            "Failed to load your certificate. Please try again later.",
+        );
+      })
+      .finally(() => {
+        if (isMounted) setCertificateLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section className="space-y-6">
@@ -52,8 +69,16 @@ export default function StudentDashboardPage() {
       </h1>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <StudentInfoCard student={student} />
-        <CertificateCard certificate={certificate} />
+        <StudentInfoCard
+          student={student}
+          loading={studentLoading}
+          error={studentError}
+        />
+        <CertificateCard
+          certificate={certificate}
+          loading={certificateLoading}
+          error={certificateError}
+        />
       </div>
     </section>
   );

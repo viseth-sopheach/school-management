@@ -1,7 +1,47 @@
 import { useEffect, useState } from "react";
 import { getAllClasses } from "../../api/adminApi";
 import ClassTable from "../../components/admin/ClassTable";
-import LoadingTable from "../../components/common/LoadingTable";
+
+function ClassesSkeleton({ rows = 6 }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-black/10 dark:border-white/10">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead className="bg-black/5 dark:bg-white/10">
+            <tr>
+              <th className="px-6 py-4 text-left font-semibold">Class Name</th>
+              <th className="px-6 py-4 text-left font-semibold">Teacher</th>
+              <th className="px-6 py-4 text-left font-semibold">Students</th>
+              <th className="px-6 py-4 text-left font-semibold">Created</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {Array.from({ length: rows }).map((_, index) => (
+              <tr
+                key={index}
+                className="border-t border-black/10 dark:border-white/10"
+              >
+                <td className="px-6 py-4">
+                  <div className="h-4 w-36 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-28 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [classes, setClasses] = useState([]);
@@ -28,7 +68,9 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {!loading && (
+          {loading ? (
+            <div className="h-9 w-36 animate-pulse rounded-lg bg-black/5 dark:bg-white/10" />
+          ) : (
             <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
               Total Classes: {classes.length}
             </div>
@@ -42,13 +84,13 @@ export default function Dashboard() {
             </div>
           )}
 
-          {loading ? (
-            <LoadingTable rows={6} />
-          ) : (
-            <div className="overflow-x-auto">
+          <div className="overflow-x-auto">
+            {loading ? (
+              <ClassesSkeleton rows={6} />
+            ) : (
               <ClassTable classes={classes} />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </section>

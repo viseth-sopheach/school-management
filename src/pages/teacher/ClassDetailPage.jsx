@@ -11,8 +11,67 @@ import {
 import StudentTable from "../../components/teacher/StudentTable";
 import AddStudentForm from "../../components/teacher/AddStudentForm";
 import EditStudentForm from "../../components/teacher/EditStudentForm";
-import LoadingTable from "../../components/common/LoadingTable";
 import AttachStudentForm from "../../components/teacher/AttachStudentForm";
+
+function StudentTableSkeleton({ rows = 6 }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-black/10 dark:border-white/10">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead className="bg-black/5 dark:bg-white/10">
+            <tr>
+              <th className="px-6 py-4 text-left font-semibold">Name</th>
+              <th className="px-6 py-4 text-left font-semibold">Gender</th>
+              <th className="px-6 py-4 text-left font-semibold">DOB</th>
+              <th className="px-6 py-4 text-left font-semibold">C++ Score</th>
+              <th className="px-6 py-4 text-left font-semibold">C Score</th>
+              <th className="px-6 py-4 text-left font-semibold">Grade</th>
+              <th className="px-6 py-4 text-left font-semibold">Certificate</th>
+              <th className="px-6 py-4 text-center font-semibold">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {Array.from({ length: rows }).map((_, index) => (
+              <tr
+                key={index}
+                className="border-t border-black/10 dark:border-white/10"
+              >
+                <td className="px-6 py-4">
+                  <div className="h-4 w-28 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-14 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-20 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-6 w-20 animate-pulse rounded-full bg-black/10 dark:bg-white/10" />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="mx-auto flex w-fit gap-2">
+                    <div className="h-8 w-14 animate-pulse rounded-lg bg-black/10 dark:bg-white/10" />
+                    <div className="h-8 w-28 animate-pulse rounded-lg bg-black/10 dark:bg-white/10" />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 export default function ClassDetailPage() {
   const { classId } = useParams();
@@ -22,6 +81,28 @@ export default function ClassDetailPage() {
   const [actionError, setActionError] = useState("");
   const [editingStudent, setEditingStudent] = useState(null);
   const [showAddOptions, setShowAddOptions] = useState(false);
+
+  const navBack = useNavigate();
+
+  useEffect(() => {
+    loadClass();
+  }, [classId]);
+
+  const loadClass = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const { data } = await getClass(classId);
+      setClassData(data.class);
+    } catch (err) {
+      setError(
+        "Failed to load class. This route may not exist on the backend yet.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAttachStudent = async (studentId) => {
     try {
@@ -38,23 +119,6 @@ export default function ClassDetailPage() {
       );
     }
   };
-
-  const loadClass = async () => {
-    try {
-      const { data } = await getClass(classId);
-      setClassData(data.class);
-    } catch (err) {
-      setError(
-        "Failed to load class. This route may not exist on the backend yet.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadClass();
-  }, [classId]);
 
   const handleAddStudent = async (formValues) => {
     try {
@@ -144,39 +208,47 @@ export default function ClassDetailPage() {
     }
   };
 
-  const navBack = useNavigate();
-
   return (
     <section>
       <div className="rounded-2xl border border-black/10 bg-white/40 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-white/5">
         <div className="flex flex-col gap-3 border-b border-black/10 px-6 py-5 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
           <div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              {loading ? "Loading class..." : classData?.name}
+              {loading ? (
+                <span className="inline-block h-8 w-48 animate-pulse rounded bg-black/10 align-middle dark:bg-white/10" />
+              ) : (
+                classData?.name
+              )}
             </h1>
             <p className="mt-1 text-sm opacity-70">
               Manage students, scores, and certificate approvals.
             </p>
           </div>
 
-          {!loading && classData && (
+          {loading ? (
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
-                <button onClick={()=>navBack(-1)}>
-                  Back to dashboard
+              <div className="h-9 w-36 animate-pulse rounded-lg bg-black/5 dark:bg-white/10" />
+              <div className="h-9 w-32 animate-pulse rounded-lg bg-black/5 dark:bg-white/10" />
+              <div className="h-9 w-28 animate-pulse rounded-lg bg-black/5 dark:bg-white/10" />
+            </div>
+          ) : (
+            classData && (
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
+                  <button onClick={() => navBack(-1)}>Back to dashboard</button>
+                </div>
+                <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
+                  Total Students: {classData.students?.length ?? 0}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddOptions((prev) => !prev)}
+                  className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-80 dark:bg-white dark:text-black"
+                >
+                  {showAddOptions ? "Close Form" : "+ Add Student"}
                 </button>
               </div>
-              <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
-                Total Students: {classData.students?.length ?? 0}
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAddOptions((prev) => !prev)}
-                className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-80 dark:bg-white dark:text-black"
-              >
-                {showAddOptions ? "Close Form" : "+ Add Student"}
-              </button>
-            </div>
+            )
           )}
         </div>
 
@@ -194,7 +266,7 @@ export default function ClassDetailPage() {
           )}
 
           {loading ? (
-            <LoadingTable rows={6} />
+            <StudentTableSkeleton rows={6} />
           ) : (
             !error && (
               <>

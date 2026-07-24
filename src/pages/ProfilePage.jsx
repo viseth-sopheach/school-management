@@ -3,7 +3,6 @@ import { useAuth } from "../hooks/useAuth";
 import { getMe as getAdminMe } from "../api/adminApi";
 import { getMe as getTeacherMe } from "../api/teacherApi";
 import { getAccount as getStudentMe } from "../api/studentApi";
-import LoadingSpinner from "../components/common/LoadingSpinner";
 import Update from "./Update";
 
 const PROFILE_FETCHERS = {
@@ -41,16 +40,6 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, [user?.role]);
 
-  if (loading) return <LoadingSpinner />;
-
-  if (error) {
-    return (
-      <div className="mx-auto mt-10 max-w-lg rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-600 dark:text-red-400">
-        {error}
-      </div>
-    );
-  }
-
   if (showUpdate) {
     return <Update onCancel={() => setShowUpdate(false)} />;
   }
@@ -59,32 +48,60 @@ export default function ProfilePage() {
     <section className="mx-auto max-w-5xl px-6">
       <h1 className="mb-8 text-3xl font-bold">My Account</h1>
 
+      {error && (
+        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-600 dark:text-red-400">
+          {error}
+        </div>
+      )}
+
       <div className="overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] shadow-2xl dark:border-white/10 dark:bg-white/[0.03]">
         <div className="flex items-center gap-5 border-b border-black/10 p-8 dark:border-white/10">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-black/10 text-3xl font-bold dark:bg-white/10">
-            {account.name?.charAt(0).toUpperCase()}
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-black/10 text-3xl font-bold dark:bg-white/10">
+            {loading ? (
+              <div className="h-8 w-8 animate-pulse rounded-full bg-black/10 dark:bg-white/10" />
+            ) : (
+              (account?.name?.charAt(0).toUpperCase() ?? "?")
+            )}
           </div>
 
-          <div>
-            <h2 className="text-2xl font-bold">{account.name}</h2>
-            <p className="opacity-70">{account.email}</p>
-            <span className="mt-2 inline-block rounded-full bg-black/10 px-3 py-1 text-xs font-semibold capitalize dark:bg-white/10">
-              {account.role}
-            </span>
+          <div className="min-w-0">
+            {loading ? (
+              <>
+                <div className="mb-2 h-6 w-40 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                <div className="h-4 w-56 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold">{account?.name}</h2>
+                <p className="opacity-70">{account?.email}</p>
+                <span className="mt-2 inline-block rounded-full bg-black/10 px-3 py-1 text-xs font-semibold capitalize dark:bg-white/10">
+                  {account?.role}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
         <div className="grid gap-10 p-8 md:grid-cols-2">
           <div className="space-y-4">
-            <InfoRow label="Full Name" value={account.name} />
-            <InfoRow label="Email" value={account.email} />
+            <InfoRow
+              label="Full Name"
+              value={account?.name}
+              loading={loading}
+            />
+            <InfoRow label="Email" value={account?.email} loading={loading} />
           </div>
 
           <div className="space-y-4">
-            <InfoRow label="Created" value={formatDate(account.created_at)} />
+            <InfoRow
+              label="Created"
+              value={formatDate(account?.created_at)}
+              loading={loading}
+            />
             <InfoRow
               label="Last Updated"
-              value={formatDate(account.updated_at)}
+              value={formatDate(account?.updated_at)}
+              loading={loading}
             />
           </div>
         </div>
@@ -92,7 +109,8 @@ export default function ProfilePage() {
         <div className="flex justify-end gap-4 border-t border-black/10 p-6 dark:border-white/10">
           <button
             onClick={() => setShowUpdate(true)}
-            className="rounded-xl bg-[var(--color-text)] px-5 py-2.5 font-medium text-[var(--color-bg)] transition hover:opacity-90"
+            disabled={loading || !!error}
+            className="rounded-xl bg-[var(--color-text)] px-5 py-2.5 font-medium text-[var(--color-bg)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Update Password
           </button>
@@ -102,11 +120,15 @@ export default function ProfilePage() {
   );
 }
 
-function InfoRow({ label, value }) {
+function InfoRow({ label, value, loading }) {
   return (
     <div className="flex items-center justify-between rounded-xl bg-black/[0.03] p-4 dark:bg-white/[0.03]">
       <span className="text-sm opacity-70">{label}</span>
-      <span className="font-semibold">{value ?? "-"}</span>
+      {loading ? (
+        <div className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+      ) : (
+        <span className="font-semibold">{value ?? "-"}</span>
+      )}
     </div>
   );
 }

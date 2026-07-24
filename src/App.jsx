@@ -34,7 +34,6 @@ export default function App() {
                       <Route path="/" element={<Welcome />} />
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/register" element={<RegisterPage />} />
-
                       <Route
                         path="/admin/users"
                         element={
@@ -51,7 +50,6 @@ export default function App() {
                           </ProtectedRoute>
                         }
                       />
-
                       <Route
                         path="/teacher"
                         element={
@@ -68,7 +66,6 @@ export default function App() {
                           </ProtectedRoute>
                         }
                       />
-
                       <Route
                         path="/student"
                         element={
@@ -81,14 +78,6 @@ export default function App() {
                         path="/admin/me"
                         element={
                           <ProtectedRoute allowedRoles={["admin"]}>
-                            <ProfilePage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="/student/me"
-                        element={
-                          <ProtectedRoute allowedRoles={["student"]}>
                             <ProfilePage />
                           </ProtectedRoute>
                         }
