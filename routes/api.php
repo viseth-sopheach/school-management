@@ -31,7 +31,12 @@ Route::middleware('auth:sanctum')->group(function () {
       Route::delete('/users/{user}', 'delete')->name('admin.users.destroy');
       Route::post('/classes/{class}/subjects', 'addSubject')->name('admin.subjects.store');
       Route::put('/subjects/{subject}', 'updateSubject')->name('admin.subjects.update');
+
+      Route::put('/students/{id}', 'updateStudent')->name('admin.students.update');
+      Route::delete('/classes/{class}/students/{student}', 'removeStudentFromClass')->name('admin.classes.students.destroy');
       Route::delete('/subjects/{subject}', 'deleteSubject')->name('admin.subjects.destroy');
+      Route::put('/students/{id}/scores', 'updateScore')->name('admin.students.scores.update');
+      Route::get('/classes/{class}', 'show')->name('admin.classes.show');
    });
 
    // Teacher

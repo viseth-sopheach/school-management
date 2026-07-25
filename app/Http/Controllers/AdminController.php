@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Models\ScoreModel;
+use App\Models\StudentInfoModel;
 
 class AdminController extends Controller
 {
@@ -16,6 +18,15 @@ class AdminController extends Controller
       $user = User::all();
       return response()->json([
          'user' => $user
+      ]);
+   }
+
+   public function show(ClassModel $class)
+   {
+      $class->load(['subjects', 'students.scores', 'teacher:id,name,email']);
+
+      return response()->json([
+         'class' => $class,
       ]);
    }
 
@@ -132,5 +143,92 @@ class AdminController extends Controller
       $subject->delete();
 
       return response()->json(['message' => 'Subject deleted']);
+   }
+
+   public function updateScore(Request $req, int $id)
+   {
+      $val = $req->validate([
+         'scores' => 'required|array|min:1',
+         'scores.*' => 'nullable|numeric|min:0|max:100',
+      ]);
+
+      $student = StudentInfoModel::find($id);
+      if (!$student) {
+         return response()->json(['message' => 'Student not found'], 404);
+      }
+
+      foreach ($val['scores'] as $subjectId => $score) {
+         if ($score === null || $score === '') {
+            continue;
+         }
+
+         ScoreModel::updateOrCreate(
+            ['student_info_id' => $student->id, 'subject_id' => $subjectId],
+            ['score' => $score]
+         );
+      }
+
+      $student->grade = $student->scores()->avg('score');
+      $student->save();
+
+      return response()->json([
+         'student updated' => $student->fresh('scores'),
+      ]);
+   }
+
+   public function updateStudent(Request $req, int $id)
+   {
+      $val = $req->validate([
+         'name' => 'string|max:255',
+         'gender' => 'in:Male,Female',
+         'dob' => 'date',
+         'scores' => 'nullable|array',
+         'scores.*' => 'nullable|numeric|min:0|max:100',
+      ]);
+
+      $student = StudentInfoModel::find($id);
+      if (!$student) {
+         return response()->json(['message' => 'Student not found'], 404);
+      }
+
+      $student->fill(collect($val)->except('scores')->all());
+
+      if (!empty($val['scores'])) {
+         foreach ($val['scores'] as $subjectId => $score) {
+            if ($score === null || $score === '') {
+               continue;
+            }
+
+            ScoreModel::updateOrCreate(
+               ['student_info_id' => $student->id, 'subject_id' => $subjectId],
+               ['score' => $score]
+            );
+         }
+
+         $student->grade = $student->scores()->avg('score');
+      }
+
+      $student->save();
+
+      if (isset($val['name']) && $student->user_id) {
+         $student->user()->update(['name' => $val['name']]);
+      }
+
+      return response()->json([
+         'student updated' => $student->fresh('scores'),
+      ]);
+   }
+
+   public function removeStudentFromClass(ClassModel $class, StudentInfoModel $student)
+   {
+      if ($student->class_id !== $class->id) {
+         abort(404, 'This student is not enrolled in this class.');
+      }
+
+      $student->update(['class_id' => null]);
+
+      return response()->json([
+         'message' => 'Student removed from class successfully.',
+      ]);
    }
 }
