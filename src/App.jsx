@@ -43,6 +43,14 @@ export default function App() {
                         }
                       />
                       <Route
+                        path="/admin"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <Dashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
                         path="/admin/classes"
                         element={
                           <ProtectedRoute allowedRoles={["admin"]}>
@@ -95,14 +103,6 @@ export default function App() {
                         element={
                           <ProtectedRoute allowedRoles={["student"]}>
                             <ProfilePage />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path="/admin"
-                        element={
-                          <ProtectedRoute allowedRoles={["admin"]}>
-                            <Dashboard />
                           </ProtectedRoute>
                         }
                       />

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getMe, getMyClasses } from "../../api/teacherApi";
 import MyClassesTable from "../../components/teacher/MyClassesTable";
 
-function MyClassesSkeleton({ rows = 4 }) {
+function MyClassesSkeleton({ rows = 6 }) {
   return (
     <div className="overflow-hidden rounded-xl border border-black/10 dark:border-white/10">
       <div className="overflow-x-auto">
