@@ -36,7 +36,7 @@ class AdminController extends Controller
    public function getAllClasses()
    {
       $classes = ClassModel::withCount('students')
-         ->with('teacher:id,name,email')
+         ->with(['teacher:id,name,email', 'subjects'])
          ->latest('created_at')
          ->get();
 
@@ -47,17 +47,31 @@ class AdminController extends Controller
 
    public function store(Request $req)
    {
-      $val = $req->validate([
+      $validated = $req->validate([
          'name' => 'required|string|max:255',
          'teacher_id' => 'nullable|exists:users,id',
+         'subjects' => 'required|array|min:1',
+         'subjects.*' => 'required|string|max:255|distinct:ignore_case',
       ]);
 
-      $class = ClassModel::create($val);
+      $class = DB::transaction(function () use ($validated) {
+         $class = ClassModel::create([
+            'name' => $validated['name'],
+            'teacher_id' => $validated['teacher_id'] ?? null,
+         ]);
+
+         $class->subjects()->createMany(
+            collect($validated['subjects'])
+               ->map(fn(string $subjectName) => ['subject_name' => trim($subjectName)])
+         );
+
+         return $class;
+      });
 
       return response()->json([
          'message' => 'Class created',
-         'class' => $class->load('teacher'),
-      ]);
+         'class' => $class->load('teacher', 'subjects'),
+      ], 201);
    }
 
    public function update(Request $request, User $user)

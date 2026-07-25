@@ -23,4 +23,9 @@ class ClassModel extends Model
    {
       return $this->belongsTo(User::class, 'teacher_id');
    }
+
+   public function subjects() : HasMany
+   {
+      return $this->hasMany(SubjectModel::class, 'class_id');
+   }
 }
