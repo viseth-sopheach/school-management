@@ -33,7 +33,7 @@ export default function AdminClassesPage() {
   };
 
   return (
-    <section className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+    <section className="min-h-[90] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="rounded-2xl border border-black/10 bg-white/40 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-white/5">
           <div className="border-b border-black/10 px-6 py-5 dark:border-white/10">
@@ -41,7 +41,7 @@ export default function AdminClassesPage() {
               Classes
             </h1>
             <p className="mt-1 text-sm opacity-70">
-              Create a class and assign a teacher to lead it.
+              Create a class and assign a teacher
             </p>
           </div>
 

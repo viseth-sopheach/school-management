@@ -10,11 +10,19 @@ import { MdOutlineSpaceDashboard } from "react-icons/md";
 
 const ROLE_LINKS = {
   admin: [
-    { to: "/admin", label: "Dashboard", icon: MdOutlineSpaceDashboard, end: true },
+    {
+      to: "/admin",
+      label: "Dashboard",
+      icon: MdOutlineSpaceDashboard,
+      end: true,
+    },
     { to: "/admin/classes", label: "Classes", icon: FiGrid },
     { to: "/admin/users", label: "Users", icon: FiUsers },
   ],
-  teacher: [{ to: "/teacher", label: "Dashboard", icon: FiGrid }],
+  teacher: [
+    { to: "/teacher", label: "Dashboard", icon: FiGrid },
+    { to: "/teacher/classes", label: "Classes", icon: FiGrid },
+  ],
   student: [
     { to: "/student", label: "Dashboard", icon: FiBookOpen, end: true },
     { to: "/student/me", label: "My Info", icon: FiUser },

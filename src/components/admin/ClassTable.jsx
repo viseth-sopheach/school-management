@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { addSubject, updateSubject, deleteSubject } from "../../api/adminApi";
+import { Link } from "react-router-dom";
 
 // const MAX_VISIBLE_SUBJECTS = 3;
 
@@ -269,6 +270,7 @@ export default function ClassTable({ classes, onSubjectsChange }) {
                 <th className="px-6 py-4 text-left font-semibold">Subjects</th>
                 <th className="px-6 py-4 text-left font-semibold">Students</th>
                 <th className="px-6 py-4 text-left font-semibold">Created</th>
+                <th className="px-6 py-4 text-center font-semibold">Actions</th>
               </tr>
             </thead>
 
@@ -299,6 +301,14 @@ export default function ClassTable({ classes, onSubjectsChange }) {
 
                   <td className="px-6 py-4 whitespace-nowrap opacity-80">
                     {new Date(classItem.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <Link
+                      to={`/admin/classes/${classItem.id}`}
+                      className="rounded-lg bg-[var(--color-text)] px-4 py-2 text-sm font-medium text-[var(--color-bg)] transition hover:opacity-90"
+                    >
+                      View class
+                    </Link>
                   </td>
                 </tr>
               ))}

@@ -1,76 +1,30 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import {
-  getClass,
-  updateStudent,
+  getClass as getTeacherClass,
+  updateStudent as updateStudentAsTeacher,
   addStudent,
   approveCertificate,
-  removeStudentFromClass,
+  removeStudentFromClass as removeStudentFromClassAsTeacher,
   attachStudent,
 } from "../../api/teacherApi";
+import {
+  getClass as getAdminClass,
+  updateStudent as updateStudentAsAdmin,
+  removeStudentFromClass as removeStudentFromClassAsAdmin,
+  updateStudentScore,
+} from "../../api/adminApi";
 import StudentTable from "../../components/teacher/StudentTable";
 import AddStudentForm from "../../components/teacher/AddStudentForm";
 import EditStudentForm from "../../components/teacher/EditStudentForm";
 import AttachStudentForm from "../../components/teacher/AttachStudentForm";
 
-function StudentTableSkeleton({ rows = 6 }) {
-  return (
-    <div className="overflow-hidden rounded-xl border border-black/10 dark:border-white/10">
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead className="bg-black/5 dark:bg-white/10">
-            <tr>
-              <th className="px-6 py-4 text-left font-semibold">Name</th>
-              <th className="px-6 py-4 text-left font-semibold">Gender</th>
-              <th className="px-6 py-4 text-left font-semibold">DOB</th>
-              <th className="px-6 py-4 text-left font-semibold">Scores</th>
-              <th className="px-6 py-4 text-left font-semibold">Grade</th>
-              <th className="px-6 py-4 text-left font-semibold">Certificate</th>
-              <th className="px-6 py-4 text-center font-semibold">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {Array.from({ length: rows }).map((_, index) => (
-              <tr
-                key={index}
-                className="border-t border-black/10 dark:border-white/10"
-              >
-                <td className="px-6 py-4">
-                  <div className="h-4 w-28 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="h-4 w-14 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="h-4 w-20 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="h-6 w-20 animate-pulse rounded-full bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="mx-auto flex w-fit gap-2">
-                    <div className="h-8 w-14 animate-pulse rounded-lg bg-black/10 dark:bg-white/10" />
-                    <div className="h-8 w-28 animate-pulse rounded-lg bg-black/10 dark:bg-white/10" />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
 export default function ClassDetailPage() {
   const { classId } = useParams();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [classData, setClassData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -82,6 +36,7 @@ export default function ClassDetailPage() {
 
   useEffect(() => {
     loadClass();
+    // eslint disable next line react hooks/exhaustive deps
   }, [classId]);
 
   const loadClass = async () => {
@@ -89,11 +44,13 @@ export default function ClassDetailPage() {
     setError("");
 
     try {
-      const { data } = await getClass(classId);
+      const fetchClass = isAdmin ? getAdminClass : getTeacherClass;
+      const { data } = await fetchClass(classId);
       setClassData(data.class);
     } catch (err) {
       setError(
-        "Failed to load class. This route may not exist on the backend yet.",
+        err.response?.data?.message ||
+          "Failed to load class. This route may not exist on the backend yet.",
       );
     } finally {
       setLoading(false);
@@ -103,7 +60,6 @@ export default function ClassDetailPage() {
   const handleAttachStudent = async (studentId) => {
     try {
       const { data } = await attachStudent(classId, studentId);
-
       setClassData((prev) => ({
         ...prev,
         students: [...(prev.students || []), data.student],
@@ -119,7 +75,6 @@ export default function ClassDetailPage() {
   const handleAddStudent = async (formValues) => {
     try {
       const { data } = await addStudent(formValues);
-
       setClassData((prev) => ({
         ...prev,
         students: [...(prev.students || []), data.student],
@@ -142,7 +97,10 @@ export default function ClassDetailPage() {
     setActionError("");
 
     try {
-      await removeStudentFromClass(classId, studentId);
+      const removeFn = isAdmin
+        ? removeStudentFromClassAsAdmin
+        : removeStudentFromClassAsTeacher;
+      await removeFn(classId, studentId);
       setClassData((prev) => ({
         ...prev,
         students: prev.students.filter((s) => s.id !== studentId),
@@ -156,8 +114,8 @@ export default function ClassDetailPage() {
 
   const handleSaveEdit = async (studentId, formValues) => {
     try {
-      const { data } = await updateStudent(studentId, formValues);
-
+      const updateFn = isAdmin ? updateStudentAsAdmin : updateStudentAsTeacher;
+      const { data } = await updateFn(studentId, formValues);
       setClassData((prev) => ({
         ...prev,
         students: prev.students.map((s) =>
@@ -193,9 +151,12 @@ export default function ClassDetailPage() {
   const handleScoreChange = async (studentId, subjectId, value) => {
     setActionError("");
     try {
-      const { data } = await updateStudent(studentId, {
-        scores: { [subjectId]: value },
-      });
+      const { data } = isAdmin
+        ? await updateStudentScore(studentId, { [subjectId]: value })
+        : await updateStudentAsTeacher(studentId, {
+            scores: { [subjectId]: value },
+          });
+
       const updated = data["student updated"];
       setClassData((prev) => ({
         ...prev,
@@ -212,32 +173,24 @@ export default function ClassDetailPage() {
         <div className="flex flex-col gap-3 border-b border-black/10 px-6 py-5 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
           <div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              {loading ? (
-                <span className="inline-block h-8 w-48 animate-pulse rounded bg-black/10 align-middle dark:bg-white/10" />
-              ) : (
-                classData?.name
-              )}
+              {classData?.name ?? "Class"}
             </h1>
             <p className="mt-1 text-sm opacity-70">
-              Manage students, scores, and certificate approvals.
+              {isAdmin
+                ? "Viewing class details."
+                : "Manage students, scores, and certificate approvals."}
             </p>
           </div>
 
-          {loading ? (
+          {classData && (
             <div className="flex items-center gap-3">
-              <div className="h-9 w-36 animate-pulse rounded-lg bg-black/5 dark:bg-white/10" />
-              <div className="h-9 w-32 animate-pulse rounded-lg bg-black/5 dark:bg-white/10" />
-              <div className="h-9 w-28 animate-pulse rounded-lg bg-black/5 dark:bg-white/10" />
-            </div>
-          ) : (
-            classData && (
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
-                  <button onClick={() => navBack(-1)}>Back to dashboard</button>
-                </div>
-                <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
-                  Total Students: {classData.students?.length ?? 0}
-                </div>
+              <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
+                <button onClick={() => navBack(-1)}>Back to dashboard</button>
+              </div>
+              <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
+                Total Students: {classData.students?.length ?? 0}
+              </div>
+              {!isAdmin && (
                 <button
                   type="button"
                   onClick={() => setShowAddOptions((prev) => !prev)}
@@ -245,8 +198,8 @@ export default function ClassDetailPage() {
                 >
                   {showAddOptions ? "Close Form" : "+ Add Student"}
                 </button>
-              </div>
-            )
+              )}
+            </div>
           )}
         </div>
 
@@ -264,11 +217,11 @@ export default function ClassDetailPage() {
           )}
 
           {loading ? (
-            <StudentTableSkeleton rows={6} />
+            <p className="py-12 text-center text-sm opacity-70">Loading...</p>
           ) : (
             !error && (
               <>
-                {showAddOptions && (
+                {!isAdmin && showAddOptions && (
                   <div className="mb-6 space-y-6">
                     <div className="rounded-xl border border-black/10 p-4 dark:border-white/10">
                       <AddStudentForm
@@ -302,7 +255,9 @@ export default function ClassDetailPage() {
                     subjects={classData?.subjects || []}
                     onEdit={(student) => setEditingStudent(student)}
                     onRemove={handleRemoveFromClass}
-                    onApproveCertificate={handleApproveCertificate}
+                    onApproveCertificate={
+                      isAdmin ? undefined : handleApproveCertificate
+                    }
                     onScoreChange={handleScoreChange}
                     editingStudentId={editingStudent?.id}
                   />

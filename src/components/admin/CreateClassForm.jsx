@@ -44,7 +44,7 @@ export default function CreateClassForm({ onCreate, teachers, isLoading }) {
       setTeacherId("");
       setSubjects([""]);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create class.");
+      setError(err.response?.data?.message || "something went wrong");
     } finally {
       setSubmitting(false);
     }

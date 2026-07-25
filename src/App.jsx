@@ -59,6 +59,14 @@ export default function App() {
                         }
                       />
                       <Route
+                        path="/admin/classes/:classId"
+                        element={
+                          <ProtectedRoute allowedRoles={["admin"]}>
+                            <ClassDetailPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
                         path="/teacher"
                         element={
                           <ProtectedRoute allowedRoles={["teacher"]}>
