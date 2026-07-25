@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StudentInfoModel extends Model
 {
@@ -23,9 +24,9 @@ class StudentInfoModel extends Model
       'academic_status',
    ];
 
-    protected $table = 'student_info';
+   protected $table = 'student_info';
 
-    public $timestamps = false;
+   public $timestamps = false;
 
    protected function casts(): array
    {
@@ -46,9 +47,13 @@ class StudentInfoModel extends Model
       return $this->belongsTo(User::class);
    }
 
-   // Certificate approve by teacher
    public function certificateApprover(): BelongsTo
    {
       return $this->belongsTo(User::class, 'certificate_approved_by');
+   }
+
+   public function scores(): HasMany
+   {
+      return $this->hasMany(ScoreModel::class, 'student_info_id');
    }
 }

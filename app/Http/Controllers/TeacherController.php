@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassModel;
+use App\Models\ScoreModel;
 use App\Models\StudentInfoModel;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -35,7 +36,7 @@ class TeacherController extends Controller
          abort(403, 'You are not authorized to view this class.');
       }
 
-      $class->load('students');
+      $class->load(['subjects', 'students.scores']);
 
       return response()->json([
          'class' => $class,
@@ -53,7 +54,6 @@ class TeacherController extends Controller
          'class_id' => 'nullable|integer|exists:classes,id',
       ]);
 
-      // if a class was specified, make sure teacher owns class
       if (!empty($validate['class_id'])) {
          $class = ClassModel::find($validate['class_id']);
 
@@ -121,26 +121,14 @@ class TeacherController extends Controller
       ]);
    }
 
-   public function score(Request $req)
-   {
-      $val = $req->validate([
-         'C++_score' => 'required|numeric',
-         'C_score' => 'required|numeric',
-      ]);
-      $val = StudentInfoModel::create($val);
-      return response()->json([
-         'student score' => $val,
-      ]);
-   }
-
    public function update(Request $req, int $id)
    {
       $val = $req->validate([
          'name' => 'string|max:255',
          'gender' => 'in:Male,Female',
          'dob' => 'date',
-         'Cpp_score' => 'nullable|numeric',
-         'C_score' => 'nullable|numeric',
+         'scores' => 'nullable|array',
+         'scores.*' => 'nullable|numeric|min:0|max:100',
       ]);
 
       $student = StudentInfoModel::find($id);
@@ -148,10 +136,23 @@ class TeacherController extends Controller
          return response()->json(['message' => 'Student not found'], 404);
       }
 
-      $student->fill($val);
-      if ($student->Cpp_score !== null && $student->C_score !== null) {
-         $student->grade = ($student->Cpp_score + $student->C_score) / 2;
+      $student->fill(collect($val)->except('scores')->all());
+
+      if (!empty($val['scores'])) {
+         foreach ($val['scores'] as $subjectId => $score) {
+            if ($score === null || $score === '') {
+               continue;
+            }
+
+            ScoreModel::updateOrCreate(
+               ['student_info_id' => $student->id, 'subject_id' => $subjectId],
+               ['score' => $score]
+            );
+         }
+
+         $student->grade = $student->scores()->avg('score');
       }
+
       $student->save();
 
       if (isset($val['name']) && $student->user_id) {
@@ -159,7 +160,7 @@ class TeacherController extends Controller
       }
 
       return response()->json([
-         'student updated' => $student,
+         'student updated' => $student->fresh('scores'),
       ]);
    }
 
@@ -209,7 +210,6 @@ class TeacherController extends Controller
       ]);
    }
 
-   // remove a student from the teacher's class without deleting the student record
    public function removeStudentFromClass(Request $request, ClassModel $class, StudentInfoModel $student)
    {
       if ($class->teacher_id !== $request->user()->id) {

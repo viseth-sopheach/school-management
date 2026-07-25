@@ -29,6 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
       Route::post('/classes', 'store')->name('admin.classes.store');
       Route::put('/users/{user}', 'update')->name('admin.users.update');
       Route::delete('/users/{user}', 'delete')->name('admin.users.destroy');
+      Route::post('/classes/{class}/subjects', 'addSubject')->name('admin.subjects.store');
+      Route::put('/subjects/{subject}', 'updateSubject')->name('admin.subjects.update');
+      Route::delete('/subjects/{subject}', 'deleteSubject')->name('admin.subjects.destroy');
    });
 
    // Teacher

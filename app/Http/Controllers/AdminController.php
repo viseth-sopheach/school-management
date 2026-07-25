@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassModel;
+use App\Models\SubjectModel;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -93,5 +96,41 @@ class AdminController extends Controller
       $user = User::findOrFail($user);
       $user->delete();
       return response()->json(['message' => 'User deleted successfully']);
+   }
+
+   public function addSubject(Request $req, ClassModel $class)
+   {
+      $validate = $req->validate([
+         'subject_name' => ['required', 'string', 'max:255', Rule::unique('subjects', 'subject_name')->where('class_id', $class->id)],
+      ]);
+      $subject = $class->subjects()->create([
+         'subject_name' => $validate['subject_name'],
+      ]);
+
+      return response()->json([
+         'message' => 'Subject added successfully',
+         'subject' => $subject,
+      ]);
+   }
+
+   public function updateSubject(Request $req, SubjectModel $subject)
+   {
+      $validated = $req->validate([
+         'subject_name' => [
+            'required|string|max:255', Rule::unique('subjects', 'subject_name')->where('class_id', $subject->class_id)->ignore($subject->id),
+         ]
+      ]);
+      $subject->update(['subject_name' => $validated['subject_name']]);
+      return response()->json([
+         'message' => 'Subject updated',
+         'subject' => $subject,
+      ]);
+   }
+
+   public function deleteSubject(SubjectModel $subject)
+   {
+      $subject->delete();
+
+      return response()->json(['message' => 'Subject deleted']);
    }
 }
