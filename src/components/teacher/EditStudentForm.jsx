@@ -1,18 +1,37 @@
 import { useState } from "react";
 
-export default function EditStudentForm({ student, onSave, onCancel }) {
+function buildInitialScores(student, subjects) {
+  return subjects.reduce((acc, subject) => {
+    const existing = student.scores?.find((s) => s.subject_id === subject.id);
+    acc[subject.id] = existing?.score ?? "";
+    return acc;
+  }, {});
+}
+
+export default function EditStudentForm({
+  student,
+  subjects,
+  onSave,
+  onCancel,
+}) {
   const [form, setForm] = useState({
     name: student.name || "",
     gender: student.gender || "Male",
     dob: student.dob ? student.dob.slice(0, 10) : "",
-    Cpp_score: student.Cpp_score ?? "",
-    C_score: student.C_score ?? "",
+    scores: buildInitialScores(student, subjects),
   });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleScoreChange = (subjectId, value) => {
+    setForm((prev) => ({
+      ...prev,
+      scores: { ...prev.scores, [subjectId]: value },
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -131,53 +150,37 @@ export default function EditStudentForm({ student, onSave, onCancel }) {
           </select>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label
-              htmlFor="Cpp_score"
-              className="mb-1 block text-xs font-medium opacity-70"
-            >
-              C++ Score
-            </label>
-            <input
-              id="Cpp_score"
-              name="Cpp_score"
-              type="number"
-              step="0.1"
-              value={form.Cpp_score}
-              onChange={handleChange}
-              className={inputClass}
-            />
-            {errors.Cpp_score && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                {errors.Cpp_score[0]}
-              </p>
-            )}
+        {subjects.length > 0 && (
+          <div className="grid grid-cols-2 gap-3 sm:col-span-2 sm:grid-cols-3">
+            {subjects.map((subject) => (
+              <div key={subject.id}>
+                <label
+                  htmlFor={`score-${subject.id}`}
+                  className="mb-1 block text-xs font-medium opacity-70"
+                >
+                  {subject.subject_name}
+                </label>
+                <input
+                  id={`score-${subject.id}`}
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  value={form.scores[subject.id] ?? ""}
+                  onChange={(e) =>
+                    handleScoreChange(subject.id, e.target.value)
+                  }
+                  className={inputClass}
+                />
+                {errors[`scores.${subject.id}`] && (
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                    {errors[`scores.${subject.id}`][0]}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
-
-          <div>
-            <label
-              htmlFor="C_score"
-              className="mb-1 block text-xs font-medium opacity-70"
-            >
-              C Score
-            </label>
-            <input
-              id="C_score"
-              name="C_score"
-              type="number"
-              step="0.1"
-              value={form.C_score}
-              onChange={handleChange}
-              className={inputClass}
-            />
-            {errors.C_score && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                {errors.C_score[0]}
-              </p>
-            )}
-          </div>
-        </div>
+        )}
       </div>
 
       <button

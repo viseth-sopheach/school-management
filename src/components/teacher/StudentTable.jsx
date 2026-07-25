@@ -1,14 +1,30 @@
 import { useState } from "react";
 
+function getScoreForSubject(student, subjectId) {
+  return student.scores?.find((s) => s.subject_id === subjectId)?.score ?? "";
+}
+
+function formatDob(date) {
+  if (!date) return "-";
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return date;
+
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
 export default function StudentTable({
   students,
+  subjects,
   onEdit,
   onRemove,
   onApproveCertificate,
   onScoreChange,
   editingStudentId,
 }) {
-  // Track which student is being approved (null when modal is closed)
   const [pendingApproveStudent, setPendingApproveStudent] = useState(null);
 
   if (students.length === 0) {
@@ -19,18 +35,6 @@ export default function StudentTable({
         </p>
       </div>
     );
-  }
-
-  function formatDob(date) {
-    if (!date) return "-";
-    const d = new Date(date);
-    if (Number.isNaN(d.getTime())) return date;
-
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-
-    return `${day}/${month}/${year}`;
   }
 
   const handleConfirmApprove = () => {
@@ -50,8 +54,14 @@ export default function StudentTable({
                 <th className="px-6 py-4 text-left font-semibold">Name</th>
                 <th className="px-6 py-4 text-left font-semibold">Gender</th>
                 <th className="px-6 py-4 text-left font-semibold">DOB</th>
-                <th className="px-6 py-4 text-left font-semibold">C++ Score</th>
-                <th className="px-6 py-4 text-left font-semibold">C Score</th>
+                {subjects.map((subject) => (
+                  <th
+                    key={subject.id}
+                    className="px-6 py-4 text-left font-semibold"
+                  >
+                    {subject.subject_name}
+                  </th>
+                ))}
                 <th className="px-6 py-4 text-left font-semibold">Grade</th>
                 <th className="px-6 py-4 text-left font-semibold">
                   Certificate
@@ -77,30 +87,27 @@ export default function StudentTable({
                   <td className="px-6 py-4 opacity-80">
                     {formatDob(student.dob)}
                   </td>
+
+                  {subjects.map((subject) => (
+                    <td key={subject.id} className="px-6 py-4 opacity-80">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="100"
+                        defaultValue={getScoreForSubject(student, subject.id)}
+                        onBlur={(e) =>
+                          onScoreChange(student.id, subject.id, e.target.value)
+                        }
+                        className="w-20 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm outline-none focus:border-black/40 dark:border-white/15 dark:focus:border-white/40"
+                      />
+                    </td>
+                  ))}
+
                   <td className="px-6 py-4 opacity-80">
-                    <input
-                      type="number"
-                      step="0.1"
-                      defaultValue={student.Cpp_score ?? ""}
-                      onBlur={(e) =>
-                        onScoreChange(student.id, "Cpp_score", e.target.value)
-                      }
-                      className="w-20 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm outline-none focus:border-black/40 dark:border-white/15 dark:focus:border-white/40"
-                    />
-                  </td>
-                  <td className="px-6 py-4 opacity-80">
-                    <input
-                      type="number"
-                      step="0.1"
-                      defaultValue={student.C_score ?? ""}
-                      onBlur={(e) =>
-                        onScoreChange(student.id, "C_score", e.target.value)
-                      }
-                      className="w-20 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm outline-none focus:border-black/40 dark:border-white/15 dark:focus:border-white/40"
-                    />
-                  </td>
-                  <td className="px-6 py-4 opacity-80">
-                    {student.grade ?? "-"}
+                    {student.grade != null
+                      ? Number(student.grade).toFixed(1)
+                      : "-"}
                   </td>
 
                   <td className="px-6 py-4">
@@ -144,16 +151,13 @@ export default function StudentTable({
         </div>
       </div>
 
-      {/* Confirm aproving  */}
       {pendingApproveStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-neutral-900">
-            <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-              Approve Certificate
-            </h3>
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-black/10 bg-[var(--color-bg)] p-6 text-[var(--color-text)] shadow-xl dark:border-white/10">
+            <h3 className="text-lg font-semibold">Approve Certificate</h3>
+            <p className="mt-2 text-sm opacity-70">
               Are you sure you want to approve the certificate for{" "}
-              <span className="font-semibold text-neutral-900 dark:text-white">
+              <span className="font-semibold">
                 {pendingApproveStudent.name}
               </span>
               ? This action cannot be easily undone.

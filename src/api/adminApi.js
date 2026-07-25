@@ -1,3 +1,4 @@
+import axios from "axios";
 import axiosClient from "./axiosClient";
 
 export const getAllUsers = () => axiosClient.get("/admin/users");
@@ -15,3 +16,15 @@ export const deleteUser = (userId) =>
 export const createClass = (data) => axiosClient.post("/admin/classes", data);
 
 export const getMe = () => axiosClient.get("/auth/me");
+
+export const addSubject = (classId, data) => {
+  axiosClient.post(`/admin/classes/${classId}/subjects`, data);
+};
+
+export const updateSubject = (subjectId, data) => {
+  axiosClient.put(`/admin/subjects/${subjectId}`);
+};
+
+export const deleteSubject = (subjectId) => {
+  axiosClient.delete(`/admin.subjects/${subjectId}`);
+};

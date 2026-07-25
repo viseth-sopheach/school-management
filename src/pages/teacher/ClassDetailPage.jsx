@@ -23,8 +23,7 @@ function StudentTableSkeleton({ rows = 6 }) {
               <th className="px-6 py-4 text-left font-semibold">Name</th>
               <th className="px-6 py-4 text-left font-semibold">Gender</th>
               <th className="px-6 py-4 text-left font-semibold">DOB</th>
-              <th className="px-6 py-4 text-left font-semibold">C++ Score</th>
-              <th className="px-6 py-4 text-left font-semibold">C Score</th>
+              <th className="px-6 py-4 text-left font-semibold">Scores</th>
               <th className="px-6 py-4 text-left font-semibold">Grade</th>
               <th className="px-6 py-4 text-left font-semibold">Certificate</th>
               <th className="px-6 py-4 text-center font-semibold">Actions</th>
@@ -47,10 +46,7 @@ function StudentTableSkeleton({ rows = 6 }) {
                   <div className="h-4 w-20 animate-pulse rounded bg-black/10 dark:bg-white/10" />
                 </td>
                 <td className="px-6 py-4">
-                  <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+                  <div className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10" />
                 </td>
                 <td className="px-6 py-4">
                   <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
@@ -194,10 +190,12 @@ export default function ClassDetailPage() {
     }
   };
 
-  const handleScoreChange = async (studentId, field, value) => {
+  const handleScoreChange = async (studentId, subjectId, value) => {
     setActionError("");
     try {
-      const { data } = await updateStudent(studentId, { [field]: value });
+      const { data } = await updateStudent(studentId, {
+        scores: { [subjectId]: value },
+      });
       const updated = data["student updated"];
       setClassData((prev) => ({
         ...prev,
@@ -291,6 +289,7 @@ export default function ClassDetailPage() {
                   <div className="mb-6">
                     <EditStudentForm
                       student={editingStudent}
+                      subjects={classData?.subjects || []}
                       onSave={handleSaveEdit}
                       onCancel={() => setEditingStudent(null)}
                     />
@@ -300,6 +299,7 @@ export default function ClassDetailPage() {
                 <div className="overflow-x-auto">
                   <StudentTable
                     students={classData?.students || []}
+                    subjects={classData?.subjects || []}
                     onEdit={(student) => setEditingStudent(student)}
                     onRemove={handleRemoveFromClass}
                     onApproveCertificate={handleApproveCertificate}

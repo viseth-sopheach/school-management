@@ -54,6 +54,11 @@ export default function Dashboard() {
       .catch(() => setError("Failed to load classes."))
       .finally(() => setLoading(false));
   }, []);
+  const handleSubjectsChange = (classId, subjects) => {
+    setClasses((prev) =>
+      prev.map((c) => (c.id === classId ? { ...c, subjects } : c)),
+    );
+  };
 
   return (
     <section>
@@ -88,7 +93,10 @@ export default function Dashboard() {
             {loading ? (
               <ClassesSkeleton rows={6} />
             ) : (
-              <ClassTable classes={classes} />
+              <ClassTable
+                classes={classes}
+                onSubjectsChange={handleSubjectsChange}
+              />
             )}
           </div>
         </div>
