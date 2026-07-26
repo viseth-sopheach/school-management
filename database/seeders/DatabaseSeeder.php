@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\ClassModel;
+use App\Models\StudentInfoModel;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,34 +21,59 @@ class DatabaseSeeder extends Seeder
          'role' => 'admin',
       ]);
 
-      $teacher = User::factory()->create([
+      $teacherOne = User::factory()->create([
          'name' => 'John',
          'email' => 'john@ms.com',
          'password' => '123',
          'role' => 'teacher',
       ]);
 
-      $class = \App\Models\ClassModel::create([
-         'name' => 'C language',
-         'teacher_id' => $teacher->id,
+      $teacherTwo = User::factory()->create([
+         'name' => 'Alex',
+         'email' => 'sarah@ms.com',
+         'password' => '123',
+         'role' => 'teacher',
       ]);
 
-      $studentUser = User::factory()->create([
+      $classOne = ClassModel::create([
+         'name' => 'C language',
+         'teacher_id' => $teacherOne->id,
+      ]);
+
+      $classTwo = ClassModel::create([
+         'name' => 'C++ language',
+         'teacher_id' => $teacherTwo->id,
+      ]);
+      $studentOne = User::factory()->create([
          'name' => 'Tom',
          'email' => 'tom@ms.com',
          'password' => '123',
          'role' => 'student',
       ]);
 
-      \App\Models\StudentInfoModel::create([
-         'user_id' => $studentUser->id,
-         'class_id' => $class->id,
+      StudentInfoModel::create([
+         'user_id' => $studentOne->id,
+         'class_id' => $classOne->id,
          'name' => 'Tom',
          'gender' => 'Male',
          'dob' => '2005-05-15',
-         'Cpp_score' => 85.0,
-         'C_score' => 90.0,
-         'grade' => 87.5,
+         'certificate_status' => 'pending',
+         'academic_status' => 'active',
+      ]);
+
+      $studentTwo = User::factory()->create([
+         'name' => 'Alice',
+         'email' => 'alice@ms.com',
+         'password' => '123',
+         'role' => 'student',
+      ]);
+
+      StudentInfoModel::create([
+         'user_id' => $studentTwo->id,
+         'class_id' => $classOne->id,
+         'name' => 'Alice',
+         'gender' => 'Female',
+         'dob' => '2005-08-22',
          'certificate_status' => 'pending',
          'academic_status' => 'active',
       ]);
