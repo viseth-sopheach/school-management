@@ -12,6 +12,7 @@ import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminClassesPage from "./pages/admin/AdminClassesPage";
 import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
 import ClassDetailPage from "./pages/teacher/ClassDetailPage";
+import TeacherClassesPage from "./pages/teacher/TeacherClassesPage";
 import StudentDashboardPage from "./pages/student/StudentDashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import Dashboard from "./pages/admin/Dashboard";
@@ -79,6 +80,15 @@ export default function App() {
                         element={
                           <ProtectedRoute allowedRoles={["teacher"]}>
                             <ClassDetailPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      +{" "}
+                      <Route
+                        path="/teacher/classes"
+                        element={
+                          <ProtectedRoute allowedRoles={["teacher"]}>
+                            <TeacherClassesPage />
                           </ProtectedRoute>
                         }
                       />

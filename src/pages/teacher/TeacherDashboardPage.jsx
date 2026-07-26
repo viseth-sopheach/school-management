@@ -1,44 +1,16 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getMe, getMyClasses } from "../../api/teacherApi";
-import MyClassesTable from "../../components/teacher/MyClassesTable";
 
-function MyClassesSkeleton({ rows = 6 }) {
+function StatCard({ label, value, loading }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-black/10 dark:border-white/10">
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead className="bg-black/5 dark:bg-white/10">
-            <tr>
-              <th className="px-6 py-4 text-left font-semibold">Class Name</th>
-              <th className="px-6 py-4 text-left font-semibold">Students</th>
-              <th className="px-6 py-4 text-left font-semibold">Created</th>
-              <th className="px-6 py-4 text-center font-semibold">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {Array.from({ length: rows }).map((_, index) => (
-              <tr
-                key={index}
-                className="border-t border-black/10 dark:border-white/10"
-              >
-                <td className="px-6 py-4">
-                  <div className="h-4 w-32 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="h-4 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10" />
-                </td>
-                <td className="px-6 py-4 text-center">
-                  <div className="mx-auto h-9 w-24 animate-pulse rounded-lg bg-black/10 dark:bg-white/10" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="rounded-lg bg-black/[0.03] p-4 dark:bg-white/[0.03]">
+      <p className="text-sm opacity-70">{label}</p>
+      {loading ? (
+        <div className="mt-2 h-7 w-10 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+      ) : (
+        <p className="mt-1 text-2xl font-semibold">{value}</p>
+      )}
     </div>
   );
 }
@@ -60,9 +32,20 @@ export default function TeacherDashboardPage() {
   useEffect(() => {
     getMyClasses()
       .then(({ data }) => setClasses(data.classes))
-      .catch(() => setClassesError("Failed to load your classes."))
+      .catch(() => setClassesError("something went wrong"))
       .finally(() => setClassesLoading(false));
   }, []);
+
+  const totalStudents = classes.reduce(
+    (sum, c) => sum + (c.students_count ?? 0),
+    0,
+  );
+  const uniqueSubjectNames = new Set(
+    classes.flatMap((c) =>
+      (c.subjects ?? []).map((s) => s.subject_name.trim().toLowerCase()),
+    ),
+  );
+  const totalSubjects = uniqueSubjectNames.size;
 
   return (
     <section className="space-y-6">
@@ -74,11 +57,34 @@ export default function TeacherDashboardPage() {
         )}
       </h1>
 
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard
+          label="Classes"
+          value={classes.length}
+          loading={classesLoading}
+        />
+        <StatCard
+          label="Students"
+          value={totalStudents}
+          loading={classesLoading}
+        />
+        <StatCard
+          label="Subjects"
+          value={totalSubjects}
+          loading={classesLoading}
+        />
+      </div>
+
       <div className="rounded-2xl border border-black/10 bg-white/40 p-4 shadow-lg backdrop-blur-md sm:p-6 dark:border-white/10 dark:bg-white/5">
-        <h2 className="mb-4 text-lg font-semibold">My Classes</h2>
-        <p className="mb-4 text-sm opacity-70">
-          Open a class to add students, edit their info, and manage scores.
-        </p>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">My Classes</h2>
+          <Link
+            to="/teacher/classes"
+            className="text-sm font-medium underline underline-offset-2 opacity-80 hover:opacity-100"
+          >
+            View all
+          </Link>
+        </div>
 
         {classesError && (
           <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
@@ -87,9 +93,37 @@ export default function TeacherDashboardPage() {
         )}
 
         {classesLoading ? (
-          <MyClassesSkeleton rows={4} />
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="h-16 animate-pulse rounded-lg bg-black/5 dark:bg-white/5"
+              />
+            ))}
+          </div>
+        ) : classes.length === 0 ? (
+          <p className="py-6 text-center text-sm opacity-70">
+            You haven't been assigned to any classes yet.
+          </p>
         ) : (
-          <MyClassesTable classes={classes} />
+          <div className="divide-y divide-black/10 dark:divide-white/10">
+            {classes.slice(0, 4).map((c) => (
+              <Link
+                key={c.id}
+                to={`/teacher/classes/${c.id}`}
+                className="flex items-center justify-between py-3 transition hover:opacity-70"
+              >
+                <div>
+                  <p className="font-medium">{c.name}</p>
+                  <p className="text-xs opacity-60">
+                    {c.students_count} students · {c.subjects?.length ?? 0}{" "}
+                    subjects
+                  </p>
+                </div>
+                <span aria-hidden="true">→</span>
+              </Link>
+            ))}
+          </div>
         )}
       </div>
     </section>
