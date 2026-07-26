@@ -1,0 +1,41 @@
+# Render Blueprint Specification for Laravel Deployment
+# To deploy: Go to Render Dashboard -> Blueprints -> New Blueprint Instance -> Select your Repository.
+services:
+  - type: web
+    name: school-system-backend
+    env: docker
+    plan: free
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: APP_NAME
+        value: "Viseth System Backend"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        sync: false # Set this to your service's Render URL (https://school-system-backend.onrender.com) once created
+      - key: APP_KEY
+        sync: false # Set this to the key generated locally using `php artisan key:generate --show`
+      - key: TRUST_PROXIES
+        value: "*"
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: school-system-db
+          property: connectionString
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: SESSION_DRIVER
+        value: cookie # Wrote to cookies so sessions persist despite ephemeral storage. Set to 'database' if DB session tracking is preferred.
+      - key: QUEUE_CONNECTION
+        value: sync # Set to 'database' and uncomment queue worker in supervisord.conf if background queues are needed.
+      - key: CACHE_STORE
+        value: database # Database-backed cache to keep cache persistent between spins.
+
+databases:
+  - name: school-system-db
+    databaseName: school_system
+    user: school_user
+    plan: free

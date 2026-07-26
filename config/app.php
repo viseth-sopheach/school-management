@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('Viseth System', 'Viseth System'),
+    'name' => env('APP_NAME', 'Viseth System'),
 
     /*
     |--------------------------------------------------------------------------

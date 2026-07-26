@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
       health: '/up',
    )
    ->withMiddleware(function (Middleware $middleware): void {
+      $middleware->trustProxies(at: '*');
+
       $middleware->alias(['role' => \App\Http\Middleware\CheckRole::class]);
 
       // API clients expect JSON 401 responses, not a redirect to a web login route.

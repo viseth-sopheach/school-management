@@ -15,7 +15,7 @@ RUN apk add --no-cache \
     libpng-dev
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_pgsql mbstring zip bcmath dom xml gd
+    && docker-php-ext-install pdo pdo_pgsql pdo_mysql mbstring zip bcmath dom xml gd
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
