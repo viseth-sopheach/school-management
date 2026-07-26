@@ -12,7 +12,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const redirectByRole = (role) => {
-    if (role === "admin") navigate("/admin/users");
+    if (role === "admin") navigate("/admin");
     else if (role === "teacher") navigate("/teacher");
     else navigate("/student");
   };

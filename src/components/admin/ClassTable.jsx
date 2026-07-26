@@ -260,7 +260,7 @@ export default function ClassTable({ classes, onSubjectsChange }) {
     <>
       <div className="overflow-hidden rounded-xl border border-black/10 dark:border-white/10">
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+          <table className="min-w-[900px] w-full text-sm">
             <thead className="bg-black/5 dark:bg-white/10">
               <tr>
                 <th className="px-6 py-4 text-left font-semibold">
