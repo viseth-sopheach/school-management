@@ -1,15 +1,33 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+FROM php:8.3-fpm-alpine
 
-ENV WEBROOT=/var/www/html/public
-ENV RUN_SCRIPTS=1
-ENV PHP_VERSION=8.3
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    postgresql-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    git \
+    oniguruma-dev
 
-# nginx-php-fpm listens on 8080 by default in this image
-EXPOSE 8080
+RUN docker-php-ext-install pdo pdo_pgsql mbstring zip bcmath
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY . /var/www/html/
+COPY . .
 
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader \
-    && chmod +x /var/www/html/scripts/00-laravel-deploy.sh
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+COPY docker/nginx.conf /etc/nginx/http.d/default.conf
+COPY docker/supervisord.conf /etc/supervisord.conf
+COPY docker/entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
+
+EXPOSE 8080
+
+ENTRYPOINT ["/entrypoint.sh"]
