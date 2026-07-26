@@ -8,9 +8,14 @@ RUN apk add --no-cache \
     zip \
     unzip \
     git \
-    oniguruma-dev
+    oniguruma-dev \
+    libxml2-dev \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev
 
-RUN docker-php-ext-install pdo pdo_pgsql mbstring zip bcmath
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_pgsql mbstring zip bcmath dom xml gd
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
