@@ -1,9 +1,13 @@
-export default function LoadingSpinner() {
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="loading-spinner flex flex-col items-center justify-center">
-        <span>Loading...</span>
-      </div>
-    </div>
-  );
+import LoadingSpinner from "./LoadingSpinner";
+
+export default function ProtectedRoute({ children, allowedRoles }) {
+  const { user, loading } = useAuth();
+
+  if (loading) return <LoadingSpinner />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 }

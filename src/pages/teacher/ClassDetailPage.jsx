@@ -19,6 +19,7 @@ import StudentTable from "../../components/teacher/StudentTable";
 import AddStudentForm from "../../components/teacher/AddStudentForm";
 import EditStudentForm from "../../components/teacher/EditStudentForm";
 import AttachStudentForm from "../../components/teacher/AttachStudentForm";
+import ClassDetailSkeleton from "../../components/common/ClassDetailSkeleton";
 
 export default function ClassDetailPage() {
   const { classId } = useParams();
@@ -173,7 +174,11 @@ export default function ClassDetailPage() {
         <div className="flex flex-col gap-3 border-b border-black/10 px-6 py-5 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
           <div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              {classData?.name ?? "Class"}
+              {loading ? (
+                <span className="inline-block h-7 w-40 animate-pulse rounded bg-black/10 align-middle dark:bg-white/10" />
+              ) : (
+                (classData?.name ?? "Class")
+              )}
             </h1>
             <p className="mt-1 text-sm opacity-70">
               {isAdmin
@@ -182,25 +187,24 @@ export default function ClassDetailPage() {
             </p>
           </div>
 
-          {classData && (
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
-                <button onClick={() => navBack(-1)}>Back to dashboard</button>
-              </div>
-              <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
-                Total Students: {classData.students?.length ?? 0}
-              </div>
-              {!isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => setShowAddOptions((prev) => !prev)}
-                  className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-80 dark:bg-white dark:text-black"
-                >
-                  {showAddOptions ? "Close Form" : "+ Add Student"}
-                </button>
-              )}
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
+              <button onClick={() => navBack(-1)}>Back to dashboard</button>
             </div>
-          )}
+            <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
+              Total Students:{" "}
+              {loading ? "…" : (classData?.students?.length ?? 0)}
+            </div>
+            {!isAdmin && classData && (
+              <button
+                type="button"
+                onClick={() => setShowAddOptions((prev) => !prev)}
+                className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-80 dark:bg-white dark:text-black"
+              >
+                {showAddOptions ? "Close Form" : "+ Add Student"}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="p-4 sm:p-6">
@@ -209,7 +213,6 @@ export default function ClassDetailPage() {
               {error}
             </div>
           )}
-
           {actionError && (
             <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
               {actionError}
@@ -217,7 +220,7 @@ export default function ClassDetailPage() {
           )}
 
           {loading ? (
-            <p className="py-12 text-center text-sm opacity-70">Loading...</p>
+            <ClassDetailSkeleton />
           ) : (
             !error && (
               <>
