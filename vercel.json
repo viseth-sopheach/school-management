@@ -1,0 +1,5 @@
+{
+  "version": 2,
+  "buildCommand": "npm install --no-audit --no-fund && npm run build",
+  "outputDirectory": "public"
+}
