@@ -104,7 +104,6 @@ class AdminController extends Controller
 
    public function delete(User $user)
    {
-      $user = User::findOrFail($user);
       $user->delete();
       return response()->json(['message' => 'User deleted successfully']);
    }
