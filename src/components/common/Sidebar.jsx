@@ -20,7 +20,7 @@ const ROLE_LINKS = {
     { to: "/admin/users", label: "Users", icon: FiUsers },
   ],
   teacher: [
-    { to: "/teacher", label: "Dashboard", icon: FiGrid },
+    { to: "/teacher", label: "Dashboard", icon: FiGrid, end: true },
     { to: "/teacher/classes", label: "Classes", icon: FiGrid },
   ],
   student: [
@@ -47,9 +47,9 @@ export default function Sidebar() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[80vw] flex-col border-r border-black/10 bg-[var(--color-bg)] transition-transform duration-200 dark:border-white/10 md:sticky md:top-0 md:h-screen md:max-w-none md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[80vw] flex-col border-r border-black/10 bg-[var(--color-bg)] transition-transform duration-200 dark:border-white/10 md:sticky md:top-0 md:h-screen md:max-w-none md:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isCollapsed ? "md:w-16" : "md:w-60"}`}
+        } ${isCollapsed ? "md:w-14" : "md:w-52"}`}
       >
         <div className="flex items-center justify-between px-4 py-4">
           {!isCollapsed && <span className="font-semibold">Menu</span>}

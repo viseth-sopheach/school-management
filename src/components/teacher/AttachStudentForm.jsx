@@ -1,6 +1,28 @@
 import { useEffect, useState } from "react";
 import { getAvailableStudents } from "../../api/teacherApi";
 
+function AttachStudentFormSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="h-9 w-full animate-pulse rounded-md bg-black/10 dark:bg-white/10 sm:flex-1" />
+      <div className="h-9 w-full animate-pulse rounded-md bg-black/10 dark:bg-white/10 sm:w-28" />
+    </div>
+  );
+}
+
+function dedupeById(students) {
+  const seen = new Set();
+  return students.filter((student) => {
+    if (seen.has(student.id)) return false;
+    seen.add(student.id);
+    return true;
+  });
+}
+
+function studentLabel(student) {
+  return student.email ? `${student.name} (${student.email})` : student.name;
+}
+
 export default function AttachStudentForm({ onAttach }) {
   const [students, setStudents] = useState([]);
   const [studentId, setStudentId] = useState("");
@@ -10,7 +32,7 @@ export default function AttachStudentForm({ onAttach }) {
 
   useEffect(() => {
     getAvailableStudents()
-      .then(({ data }) => setStudents(data.students))
+      .then(({ data }) => setStudents(dedupeById(data.students)))
       .catch(() => setError("Failed to load available students."))
       .finally(() => setLoading(false));
   }, []);
@@ -33,7 +55,7 @@ export default function AttachStudentForm({ onAttach }) {
     }
   };
 
-  if (loading) return <p className="text-sm opacity-70">Loading students...</p>;
+  if (loading) return <AttachStudentFormSkeleton />;
 
   return (
     <form
@@ -58,7 +80,7 @@ export default function AttachStudentForm({ onAttach }) {
             value={student.id}
             className="bg-[var(--color-bg)] text-[var(--color-text)]"
           >
-            {student.name}
+            {studentLabel(student)}
           </option>
         ))}
       </select>
