@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { getDashboard, getCertificate } from "../../api/studentApi";
+import { getDashboard, getCertificate, getGrade } from "../../api/studentApi";
 import StudentInfoCard from "../../components/student/StudentInfoCard";
 import CertificateCard from "../../components/student/CertificateCard";
+import GradeCard from "../../components/student/GradeCard";
 
 export default function StudentDashboardPage() {
   const [student, setStudent] = useState(null);
@@ -11,6 +12,10 @@ export default function StudentDashboardPage() {
   const [certificate, setCertificate] = useState(null);
   const [certificateLoading, setCertificateLoading] = useState(true);
   const [certificateError, setCertificateError] = useState("");
+
+  const [grade, setGrade] = useState(null);
+  const [gradeLoading, setGradeLoading] = useState(true);
+  const [gradeError, setGradeError] = useState("");
 
   // Fetch each section independently so one slow/failed request
   // doesn't block the rest of the page from rendering.
@@ -62,11 +67,37 @@ export default function StudentDashboardPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    getGrade()
+      .then(({ data }) => {
+        if (!isMounted) return;
+        setGrade(data.grade);
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        setGradeError(
+          err.response?.data?.message ||
+            "Failed to load your GPA. Please try again later.",
+        );
+      })
+      .finally(() => {
+        if (isMounted) setGradeLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
         My Dashboard
       </h1>
+
+      <GradeCard grade={grade} loading={gradeLoading} error={gradeError} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <StudentInfoCard
