@@ -1,21 +1,13 @@
 import axios from "axios";
 
-const getBaseURL = () => {
-  const envUrl = import.meta.env.VITE_API_URL;
-  // If VITE_API_URL is configured and isn't the local proxy route, use it
-  if (envUrl && envUrl !== "/api") {
-    return envUrl;
-  }
-  // For local development on localhost, use the Vite proxy
-  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    return "/api";
-  }
-  // Otherwise default to the hosted backend
-  return "https://school-management-2ito.onrender.com/api";
-};
+const baseURL = import.meta.env.VITE_API_URL;
+
+if (!baseURL) {
+  throw new Error("VITE_API_URL is not set");
+}
 
 const axiosClient = axios.create({
-  baseURL: getBaseURL(),
+  baseURL,
   headers: {
     Accept: "application/json",
   },

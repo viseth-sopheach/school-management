@@ -192,7 +192,7 @@ export default function ClassDetailPage() {
               <button onClick={() => navBack(-1)}>Back to dashboard</button>
             </div>
             <div className="rounded-lg bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10">
-              Total Students:{" "}
+              Total Student:{" "}
               {loading ? "…" : (classData?.students?.length ?? 0)}
             </div>
             {!isAdmin && classData && (

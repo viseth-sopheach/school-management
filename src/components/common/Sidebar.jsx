@@ -20,7 +20,7 @@ const ROLE_LINKS = {
     { to: "/admin/users", label: "Users", icon: FiUsers },
   ],
   teacher: [
-    { to: "/teacher", label: "Dashboard", icon: FiGrid, end: true },
+    { to: "/teacher", label: "Dashboard", icon: MdOutlineSpaceDashboard, end: true },
     { to: "/teacher/classes", label: "Classes", icon: FiGrid },
   ],
   student: [
