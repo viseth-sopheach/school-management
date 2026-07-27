@@ -95,7 +95,7 @@ export default function AttachStudentForm({ onAttach }) {
 
       {error && (
         <p className="text-sm text-red-600 dark:text-red-400 sm:basis-full">
-          {error}
+          something went wrong
         </p>
       )}
     </form>

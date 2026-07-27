@@ -14,7 +14,7 @@ export default function MyClassesTable({ classes }) {
   return (
     <div className="overflow-hidden rounded-xl border border-black/10 dark:border-white/10">
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
+        <table className="min-w-[700px] w-full text-sm">
           <thead className="bg-black/5 dark:bg-white/10">
             <tr>
               <th className="px-6 py-4 text-left font-semibold">Class Name</th>
@@ -38,14 +38,14 @@ export default function MyClassesTable({ classes }) {
                   {classItem.students_count}
                 </td>
 
-                <td className="px-6 py-4 opacity-80">
+                <td className="px-6 py-4 whitespace-nowrap opacity-80">
                   {new Date(classItem.created_at).toLocaleDateString()}
                 </td>
 
                 <td className="px-6 py-4 text-center">
                   <Link
                     to={`/teacher/classes/${classItem.id}`}
-                    className="rounded-lg bg-[var(--color-text)] px-4 py-2 text-sm font-medium text-[var(--color-bg)] transition hover:opacity-90"
+                    className="inline-block whitespace-nowrap rounded-lg bg-[var(--color-text)] px-4 py-2 text-sm font-medium text-[var(--color-bg)] transition hover:opacity-90"
                   >
                     View class
                   </Link>

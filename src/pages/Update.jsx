@@ -68,7 +68,7 @@ export default function Update({ onCancel }) {
                 "1px solid color-mix(in srgb, var(--color-text) 20%, transparent)",
             }}
           >
-            {error}
+            something went wrong
           </p>
         )}
 

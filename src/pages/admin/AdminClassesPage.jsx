@@ -4,14 +4,29 @@ import CreateClassForm from "../../components/admin/CreateClassForm";
 
 export default function AdminClassesPage() {
   const [teachers, setTeachers] = useState([]);
+  const [teachersError, setTeachersError] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+
     getTeachers()
-      .then(({ data }) => setTeachers(data.teachers))
-      .catch(() => setError("Failed to load teacher list."));
+      .then(({ data }) => {
+        if (!isMounted) return;
+        setTeachers(data.teachers ?? []);
+        setTeachersError("");
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setTeachersError("Failed to load teacher list.");
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleCreate = async (data) => {
@@ -46,9 +61,15 @@ export default function AdminClassesPage() {
           </div>
 
           <div className="p-6">
+            {teachersError && (
+              <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+                {teachersError}
+              </div>
+            )}
+
             {error && (
               <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
-                {error}
+                something went wrong
               </div>
             )}
 

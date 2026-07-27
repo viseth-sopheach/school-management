@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { FiEye } from "@react-icons/all-files/fi/FiEye";
+import { FiEyeOff } from "@react-icons/all-files/fi/FiEyeOff";
 import { useAuth } from "../hooks/useAuth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -66,14 +69,28 @@ export default function LoginPage() {
           <label htmlFor="password" className="mb-1 block text-sm font-medium">
             Password
           </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none transition focus:border-black/40 dark:border-white/15 dark:focus:border-white/40"
-          />
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full rounded-md border border-black/15 bg-transparent px-3 py-2 pr-10 text-sm outline-none transition focus:border-black/40 dark:border-white/15 dark:focus:border-white/40"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute inset-y-0 right-0 flex items-center px-3 opacity-60 transition hover:opacity-100"
+            >
+              {showPassword ? (
+                <FiEyeOff className="h-4 w-4" />
+              ) : (
+                <FiEye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
 
         <button

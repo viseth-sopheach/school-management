@@ -49,11 +49,27 @@ export default function Dashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+
     getAllClasses()
-      .then(({ data }) => setClasses(data.classes))
-      .catch(() => setError("Failed to load classes."))
-      .finally(() => setLoading(false));
+      .then(({ data }) => {
+        if (!isMounted) return;
+        setClasses(data.classes ?? []);
+        setError("");
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setError("something went wrong");
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
   const handleSubjectsChange = (classId, subjects) => {
     setClasses((prev) =>
       prev.map((c) => (c.id === classId ? { ...c, subjects } : c)),
@@ -85,7 +101,7 @@ export default function Dashboard() {
         <div className="p-4 sm:p-6">
           {error && (
             <div className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
-              {error}
+              something went wrong
             </div>
           )}
 
@@ -93,10 +109,12 @@ export default function Dashboard() {
             {loading ? (
               <ClassesSkeleton rows={6} />
             ) : (
-              <ClassTable
-                classes={classes}
-                onSubjectsChange={handleSubjectsChange}
-              />
+              !error && (
+                <ClassTable
+                  classes={classes}
+                  onSubjectsChange={handleSubjectsChange}
+                />
+              )
             )}
           </div>
         </div>

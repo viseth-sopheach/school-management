@@ -147,7 +147,7 @@ function ManageSubjectsModal({ classItem, onClose, onSubjectsChange }) {
 
         {error && (
           <p className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
-            {error}
+            something went wrong
           </p>
         )}
 
@@ -191,13 +191,13 @@ function ManageSubjectsModal({ classItem, onClose, onSubjectsChange }) {
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">
                     {subject.subject_name}
                   </span>
-                  <button
+                  {/* <button
                     type="button"
                     onClick={() => startEdit(subject)}
                     className="shrink-0 text-xs font-medium opacity-70 hover:underline"
                   >
                     Edit
-                  </button>
+                  </button> */}
                   <button
                     type="button"
                     onClick={() => handleDelete(subject)}

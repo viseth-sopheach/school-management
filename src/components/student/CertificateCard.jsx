@@ -66,7 +66,7 @@ export default function CertificateCard({ certificate, loading, error }) {
       <div className="p-6">
         {error && (
           <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400">
-            {error}
+            something went wrong
           </p>
         )}
 

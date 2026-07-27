@@ -47,7 +47,7 @@ export default function ScoreForm({ onSubmit }) {
       <button type="submit" disabled={submitting}>
         {submitting ? "Saving..." : "Save Score"}
       </button>
-      {error && <p className="form-error">{error}</p>}
+      {error && <p className="form-error">something went wrong</p>}
     </form>
   );
 }
