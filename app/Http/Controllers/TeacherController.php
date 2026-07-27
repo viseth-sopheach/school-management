@@ -21,6 +21,7 @@ class TeacherController extends Controller
    public function myClasses(Request $request)
    {
       $classes = ClassModel::withCount('students')
+         ->with('subjects')
          ->where('teacher_id', $request->user()->id)
          ->latest('created_at')
          ->get();
@@ -87,8 +88,12 @@ class TeacherController extends Controller
 
    public function availableStudents()
    {
-      $students = StudentInfoModel::whereNull('class_id')
-         ->get(['id', 'name', 'gender']);
+      $students = User::where('role', 'student')
+         ->whereDoesntHave('studentInfo', function ($query) {
+            $query->whereNotNull('class_id');
+         })
+         ->orderBy('name')
+         ->get(['id', 'name', 'email']);
 
       return response()->json([
          'students' => $students,
@@ -101,23 +106,34 @@ class TeacherController extends Controller
          abort(403, 'You are not authorized to modify this class.');
       }
 
-      $val = $request->validate([
-         'student_id' => 'required|integer|exists:student_info,id',
+      $validated = $request->validate([
+         'student_id' => ['required', 'integer', Rule::exists('users', 'id')->where('role', 'student')],
       ]);
 
-      $student = StudentInfoModel::find($val['student_id']);
+      $user = User::find($validated['student_id']);
 
-      if ($student->class_id) {
+      $studentInfo = StudentInfoModel::firstOrCreate(
+         ['user_id' => $user->id],
+         [
+            'name' => $user->name,
+            'gender' => 'Male',
+            'dob' => '2000-01-01',
+            'academic_status' => 'active',
+            'certificate_status' => 'pending',
+         ]
+      );
+
+      if ($studentInfo->class_id) {
          return response()->json([
             'message' => 'This student is already enrolled in a class.',
          ], 422);
       }
 
-      $student->update(['class_id' => $class->id]);
+      $studentInfo->update(['class_id' => $class->id]);
 
       return response()->json([
          'message' => 'Student added to class successfully.',
-         'student' => $student,
+         'student' => $studentInfo,
       ]);
    }
 
