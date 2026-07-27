@@ -9,30 +9,42 @@ use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
+   private function getOrInitializeStudent(Request $request, array $with = [])
+   {
+      $userId = $request->user()->id;
+      $student = StudentInfoModel::with($with)->where('user_id', $userId)->first();
+
+      if (!$student) {
+         try {
+            $student = StudentInfoModel::create([
+               'user_id' => $userId,
+               'name' => $request->user()->name,
+               'gender' => 'Male',
+               'dob' => '2000-01-01',
+               'academic_status' => 'active',
+               'certificate_status' => 'pending',
+            ]);
+            if (!empty($with)) {
+               $student->load($with);
+            }
+         } catch (\Exception $e) {
+            $student = StudentInfoModel::with($with)->where('user_id', $userId)->first();
+         }
+      }
+
+      return $student;
+   }
+
    public function me(Request $request)
    {
-      $student = StudentInfoModel::where('user_id', $request->user()->id)->first();
+      $student = $this->getOrInitializeStudent($request);
       return response()->json(['me' => $student]);
    }
 
    // Return the authenticated student's dashboard information.
    public function dashboard(Request $request)
    {
-      $student = StudentInfoModel::with(['classes.teacher'])
-         ->where('user_id', $request->user()->id)
-         ->first();
-
-      if (!$student) {
-         $student = StudentInfoModel::create([
-            'user_id' => $request->user()->id,
-            'name' => $request->user()->name,
-            'gender' => 'Male',
-            'dob' => '2000-01-01',
-            'academic_status' => 'active',
-            'certificate_status' => 'pending',
-         ]);
-         $student->load(['classes.teacher']);
-      }
+      $student = $this->getOrInitializeStudent($request, ['classes.teacher']);
 
       $academicStatus = $student->class_id
          ? ucfirst($student->academic_status ?? 'active')
@@ -54,17 +66,7 @@ class StudentController extends Controller
 
    public function grade(Request $request)
    {
-      $student = StudentInfoModel::where('user_id', $request->user()->id)->first();
-      if (!$student) {
-         $student = StudentInfoModel::create([
-            'user_id' => $request->user()->id,
-            'name' => $request->user()->name,
-            'gender' => 'Male',
-            'dob' => '2000-01-01',
-            'academic_status' => 'active',
-            'certificate_status' => 'pending',
-         ]);
-      }
+      $student = $this->getOrInitializeStudent($request);
       return response()->json([
          'grade' => $student->gpaSummary(),
       ]);
@@ -72,21 +74,7 @@ class StudentController extends Controller
 
    public function certificate(Request $request)
    {
-      $student = StudentInfoModel::with(['classes.teacher'])
-         ->where('user_id', $request->user()->id)
-         ->first();
-
-      if (!$student) {
-         $student = StudentInfoModel::create([
-            'user_id' => $request->user()->id,
-            'name' => $request->user()->name,
-            'gender' => 'Male',
-            'dob' => '2000-01-01',
-            'academic_status' => 'active',
-            'certificate_status' => 'pending',
-         ]);
-         $student->load(['classes.teacher']);
-      }
+      $student = $this->getOrInitializeStudent($request, ['classes.teacher']);
 
       return response()->json([
          'certificate' => [
@@ -103,21 +91,7 @@ class StudentController extends Controller
    // Export the approved certificate as a PDF.
    public function exportCertificate(Request $request)
    {
-      $student = StudentInfoModel::with(['classes.teacher'])
-         ->where('user_id', $request->user()->id)
-         ->first();
-
-      if (!$student) {
-         $student = StudentInfoModel::create([
-            'user_id' => $request->user()->id,
-            'name' => $request->user()->name,
-            'gender' => 'Male',
-            'dob' => '2000-01-01',
-            'academic_status' => 'active',
-            'certificate_status' => 'pending',
-         ]);
-         $student->load(['classes.teacher']);
-      }
+      $student = $this->getOrInitializeStudent($request, ['classes.teacher']);
 
       if ($student->certificate_status !== 'approved') {
          return response()->json([

@@ -96,6 +96,20 @@ class AdminController extends Controller
       $user->update([
          'role' => $val['role'],
       ]);
+
+      if ($val['role'] === 'student') {
+         StudentInfoModel::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+               'name' => $user->name,
+               'gender' => 'Male',
+               'dob' => '2000-01-01',
+               'academic_status' => 'active',
+               'certificate_status' => 'pending',
+            ]
+         );
+      }
+
       return response()->json([
          'message' => 'Role updated successfully',
          'user' => $user,

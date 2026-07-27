@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\StudentInfoModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -24,12 +26,27 @@ class AuthController extends Controller
          'role' => 'sometimes|in:admin,teacher,student',
       ]);
 
-      $user = User::create([
-         'name' => $validated['name'],
-         'email' => $validated['email'],
-         'password' => $validated['password'],
-         'role' => $validated['role'] ?? 'student',
-      ]);
+      $user = DB::transaction(function () use ($validated) {
+         $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+            'role' => $validated['role'] ?? 'student',
+         ]);
+
+         if ($user->role === 'student') {
+            StudentInfoModel::create([
+               'user_id' => $user->id,
+               'name' => $user->name,
+               'gender' => 'Male',
+               'dob' => '2000-01-01',
+               'academic_status' => 'active',
+               'certificate_status' => 'pending',
+            ]);
+         }
+
+         return $user;
+      });
 
       $token = $user->createToken('api-token')->plainTextToken;
 
