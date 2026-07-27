@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
       Route::delete('/classes/{class}/students/{student}', 'removeStudentFromClass')->name('teacher.classes.students.destroy');
       Route::get('/students/available', 'availableStudents')->name('teacher.students.available');
       Route::post('/classes/{class}/students/attach', 'attachStudent')->name('teacher.classes.students.attach');
-      Route::post('/scores', 'score')->name('teacher.scores.store');
+//      Route::post('/scores', 'score')->name('teacher.scores.store');
       Route::put('/{id}', 'update')->name('teacher.update');
       Route::delete('/{id}', 'delete')->name('teacher.destroy');
       Route::put('/students/{studentId}/certificate/approve', 'approveCertificate')

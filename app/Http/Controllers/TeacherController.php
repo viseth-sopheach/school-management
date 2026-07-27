@@ -148,9 +148,13 @@ class TeacherController extends Controller
          'scores.*' => 'nullable|numeric|min:0|max:100',
       ]);
 
-      $student = StudentInfoModel::find($id);
+      $student = StudentInfoModel::with('classes')->find($id);
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
+      }
+
+      if (!$student->classes || $student->classes->teacher_id !== $req->user()->id) {
+         abort(403, 'You are not authorized to update this student.');
       }
 
       $student->fill(collect($val)->except('scores')->all());
@@ -160,7 +164,6 @@ class TeacherController extends Controller
             if ($score === null || $score === '') {
                continue;
             }
-
             ScoreModel::updateOrCreate(
                ['student_info_id' => $student->id, 'subject_id' => $subjectId],
                ['score' => $score]
@@ -182,11 +185,15 @@ class TeacherController extends Controller
       ]);
    }
 
-   public function delete(int $id)
+   public function delete(Request $request, int $id)
    {
-      $student = StudentInfoModel::find($id);
+      $student = StudentInfoModel::with('classes')->find($id);
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
+      }
+
+      if (!$student->classes || $student->classes->teacher_id !== $request->user()->id) {
+         abort(403, 'You are not authorized to delete this student.');
       }
 
       $student->delete();
