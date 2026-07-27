@@ -126,11 +126,15 @@ class AdminController extends Controller
    public function updateSubject(Request $req, SubjectModel $subject)
    {
       $validated = $req->validate([
-         'subject_name' => [
-            'required|string|max:255', Rule::unique('subjects', 'subject_name')->where('class_id', $subject->class_id)->ignore($subject->id),
-         ]
+         'subject_name' => ['required', 'string', 'max:255',
+            Rule::unique('subjects', 'subject_name')
+               ->where('class_id', $subject->class_id)
+               ->ignore($subject->id),
+         ],
       ]);
+
       $subject->update(['subject_name' => $validated['subject_name']]);
+
       return response()->json([
          'message' => 'Subject updated',
          'subject' => $subject,
