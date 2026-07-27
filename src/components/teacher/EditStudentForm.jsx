@@ -154,13 +154,13 @@ export default function EditStudentForm({
           <div className="grid grid-cols-2 gap-3 sm:col-span-2 sm:grid-cols-3">
             {subjects.map((subject) => (
               <div key={subject.id}>
-                <label
+                {/* <label
                   htmlFor={`score-${subject.id}`}
                   className="mb-1 block text-xs font-medium opacity-70"
                 >
                   {subject.subject_name}
-                </label>
-                <input
+                </label> */}
+                {/* <input
                   id={`score-${subject.id}`}
                   type="number"
                   step="0.1"
@@ -171,7 +171,7 @@ export default function EditStudentForm({
                     handleScoreChange(subject.id, e.target.value)
                   }
                   className={inputClass}
-                />
+                /> */}
                 {errors[`scores.${subject.id}`] && (
                   <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                     {errors[`scores.${subject.id}`][0]}

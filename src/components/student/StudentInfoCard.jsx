@@ -1,8 +1,8 @@
 function InfoRow({ label, value }) {
   return (
-    <div className="flex items-center justify-between rounded-xl bg-black/[0.03] p-4 dark:bg-white/[0.03]">
-      <span className="text-sm opacity-70">{label}</span>
-      <span className="font-semibold">{value ?? "-"}</span>
+    <div className="flex items-center justify-between gap-4 rounded-xl bg-black/[0.03] p-4 dark:bg-white/[0.03]">
+      <span className="text-sm opacity-70 shrink-0">{label}</span>
+      <span className="font-semibold break-all text-right">{value ?? "-"}</span>
     </div>
   );
 }

@@ -31,7 +31,7 @@ export default function StudentDashboardPage() {
         if (!isMounted) return;
         setStudentError(
           err.response?.data?.message ||
-            "Failed to load your information. Please try again later.",
+          "Failed to load your information. Please try again later.",
         );
       })
       .finally(() => {
@@ -55,7 +55,7 @@ export default function StudentDashboardPage() {
         if (!isMounted) return;
         setCertificateError(
           err.response?.data?.message ||
-            "Failed to load your certificate. Please try again later.",
+          "Failed to load your certificate. Please try again later.",
         );
       })
       .finally(() => {
@@ -79,7 +79,7 @@ export default function StudentDashboardPage() {
         if (!isMounted) return;
         setGradeError(
           err.response?.data?.message ||
-            "Failed to load your GPA. Please try again later.",
+          "Failed to load your GPA. Please try again later.",
         );
       })
       .finally(() => {

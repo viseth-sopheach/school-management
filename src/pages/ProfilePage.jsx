@@ -73,7 +73,7 @@ export default function ProfilePage() {
             ) : (
               <>
                 <h2 className="text-2xl font-bold">{account?.name}</h2>
-                <p className="opacity-70">{account?.email}</p>
+                <p className="opacity-70 break-all">{account?.email}</p>
                 <span className="mt-2 inline-block rounded-full bg-black/10 px-3 py-1 text-xs font-semibold capitalize dark:bg-white/10">
                   {account?.role}
                 </span>
@@ -122,12 +122,12 @@ export default function ProfilePage() {
 
 function InfoRow({ label, value, loading }) {
   return (
-    <div className="flex items-center justify-between rounded-xl bg-black/[0.03] p-4 dark:bg-white/[0.03]">
-      <span className="text-sm opacity-70">{label}</span>
+    <div className="flex items-center justify-between gap-4 rounded-xl bg-black/[0.03] p-4 dark:bg-white/[0.03]">
+      <span className="text-sm opacity-70 shrink-0">{label}</span>
       {loading ? (
-        <div className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+        <div className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10 shrink-0" />
       ) : (
-        <span className="font-semibold">{value ?? "-"}</span>
+        <span className="font-semibold break-all text-right">{value ?? "-"}</span>
       )}
     </div>
   );
