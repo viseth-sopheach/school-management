@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Services\GpaCalculatorService;
 
 class StudentInfoModel extends Model
 {
@@ -55,5 +56,16 @@ class StudentInfoModel extends Model
    public function scores(): HasMany
    {
       return $this->hasMany(ScoreModel::class, 'student_info_id');
+   }
+
+   public function gpaSummary(): array
+   {
+      $scores = $this->scores()
+         ->whereNotNull('score')
+         ->pluck('score')
+         ->map(fn($score) => (float)$score)
+         ->all();
+
+      return app(GpaCalculatorService::class)->calculate($scores);
    }
 }

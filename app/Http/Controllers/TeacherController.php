@@ -166,10 +166,10 @@ class TeacherController extends Controller
                ['score' => $score]
             );
          }
-
-         $student->grade = $student->scores()->avg('score');
       }
 
+      $gpaSummary = $student->gpaSummary();
+      $student->grade = $gpaSummary['average_score'];
       $student->save();
 
       if (isset($val['name']) && $student->user_id) {
@@ -178,6 +178,7 @@ class TeacherController extends Controller
 
       return response()->json([
          'student updated' => $student->fresh('scores'),
+         'gpa_summary' => $gpaSummary,
       ]);
    }
 

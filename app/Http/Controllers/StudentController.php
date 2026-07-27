@@ -65,13 +65,11 @@ class StudentController extends Controller
             'certificate_status' => 'pending',
          ]);
       }
-      return response()->json(['grade' => $student->grade]);
+      return response()->json([
+         'grade' => $student->gpaSummary(),
+      ]);
    }
 
-   /**
-    * Return the certificate preview data and approval status for the
-    * authenticated student.
-    */
    public function certificate(Request $request)
    {
       $student = StudentInfoModel::with(['classes.teacher'])

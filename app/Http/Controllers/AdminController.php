@@ -154,28 +154,25 @@ class AdminController extends Controller
          'scores' => 'required|array|min:1',
          'scores.*' => 'nullable|numeric|min:0|max:100',
       ]);
-
       $student = StudentInfoModel::find($id);
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
       }
-
       foreach ($val['scores'] as $subjectId => $score) {
          if ($score === null || $score === '') {
             continue;
          }
-
          ScoreModel::updateOrCreate(
             ['student_info_id' => $student->id, 'subject_id' => $subjectId],
             ['score' => $score]
          );
       }
-
-      $student->grade = $student->scores()->avg('score');
+      $gpaSummary = $student->gpaSummary();
+      $student->grade = $gpaSummary['average_score'];
       $student->save();
-
       return response()->json([
          'student updated' => $student->fresh('scores'),
+         'gpa_summary' => $gpaSummary,
       ]);
    }
 
@@ -188,37 +185,31 @@ class AdminController extends Controller
          'scores' => 'nullable|array',
          'scores.*' => 'nullable|numeric|min:0|max:100',
       ]);
-
       $student = StudentInfoModel::find($id);
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
       }
-
       $student->fill(collect($val)->except('scores')->all());
-
       if (!empty($val['scores'])) {
          foreach ($val['scores'] as $subjectId => $score) {
             if ($score === null || $score === '') {
                continue;
             }
-
             ScoreModel::updateOrCreate(
                ['student_info_id' => $student->id, 'subject_id' => $subjectId],
                ['score' => $score]
             );
          }
-
-         $student->grade = $student->scores()->avg('score');
       }
-
+      $gpaSummary = $student->gpaSummary();
+      $student->grade = $gpaSummary['average_score'];
       $student->save();
-
       if (isset($val['name']) && $student->user_id) {
          $student->user()->update(['name' => $val['name']]);
       }
-
       return response()->json([
          'student updated' => $student->fresh('scores'),
+         'gpa_summary' => $gpaSummary,
       ]);
    }
 
