@@ -73,11 +73,11 @@ function ManageSubjectsModal({ classItem, onClose, onSubjectsChange }) {
     }
   };
 
-  const startEdit = (subject) => {
-    setError("");
-    setEditingId(subject.id);
-    setEditingValue(subject.subject_name);
-  };
+  // const startEdit = (subject) => {
+  //   setError("");
+  //   setEditingId(subject.id);
+  //   setEditingValue(subject.subject_name);
+  // };
 
   const cancelEdit = () => {
     setEditingId(null);
@@ -170,14 +170,14 @@ function ManageSubjectsModal({ classItem, onClose, onSubjectsChange }) {
                     autoFocus
                     className="min-w-0 flex-1 rounded-md border border-black/15 bg-transparent px-2 py-1 text-sm outline-none focus:border-black/40 dark:border-white/15 dark:focus:border-white/40"
                   />
-                  <button
+                  {/* <button
                     type="button"
                     onClick={() => handleSaveEdit(subject)}
                     disabled={savingId === subject.id}
                     className="shrink-0 text-xs font-medium text-emerald-600 hover:underline disabled:opacity-50 dark:text-emerald-400"
                   >
                     {savingId === subject.id ? "Saving..." : "Save"}
-                  </button>
+                  </button> */}
                   <button
                     type="button"
                     onClick={cancelEdit}
