@@ -64,7 +64,7 @@ export default function StudentTable({
                     {subject.subject_name}
                   </th>
                 ))}
-                <th className="px-6 py-4 text-left font-semibold">Grade</th>
+                <th className="px-6 py-4 text-left font-semibold">Everage</th>
                 <th className="px-6 py-4 text-left font-semibold">
                   Certificate
                 </th>

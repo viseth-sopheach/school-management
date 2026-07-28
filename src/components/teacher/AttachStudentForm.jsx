@@ -114,11 +114,6 @@ export default function AttachStudentForm({ onAttach }) {
           something went wrong
         </p>
       )}
-
-      <p className="text-xs opacity-60 sm:basis-full">
-        Students already enrolled in other classes are still shown — they can be
-        part of more than one class.
-      </p>
     </form>
   );
 }

@@ -1,3 +1,5 @@
+import { formatDate } from "../../utils/formatDate";
+
 function InfoRow({ label, value }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-xl bg-black/[0.03] p-4 dark:bg-white/[0.03]">
@@ -11,7 +13,7 @@ function InfoRowSkeleton({ label }) {
   return (
     <div className="flex items-center justify-between rounded-xl bg-black/[0.03] p-4 dark:bg-white/[0.03]">
       <span className="text-sm opacity-70">{label}</span>
-      <span className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10" />
+      <div className="h-4 w-24 animate-pulse rounded bg-black/10 dark:bg-white/10" />
     </div>
   );
 }
@@ -61,7 +63,7 @@ export default function StudentInfoCard({ student, loading, error }) {
             />
             <InfoRow
               label="Enrollment Date"
-              value={student.enrolled_at || "-"}
+              value={formatDate(student.enrolled_at) || "-"}
             />
             <InfoRow label="Academic Status" value={student.academic_status} />
           </div>
