@@ -112,7 +112,7 @@ export default function EditStudentForm({
             type="date"
             value={form.dob}
             onChange={handleChange}
-            className={inputClass}
+            className={`${inputClass} w-full text-base [color-scheme:light] dark:[color-scheme:dark] appearance-none`}
           />
           {errors.dob && (
             <p className="mt-1 text-xs text-red-600 dark:text-red-400">

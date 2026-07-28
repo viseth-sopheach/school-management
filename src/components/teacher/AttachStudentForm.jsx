@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAvailableStudents } from "../../api/teacherApi";
+import { getAllStudents } from "../../api/teacherApi";
 
 function AttachStudentFormSkeleton() {
   return (
@@ -31,10 +31,24 @@ export default function AttachStudentForm({ onAttach }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    getAvailableStudents()
-      .then(({ data }) => setStudents(dedupeById(data.students)))
-      .catch(() => setError("Failed to load available students."))
-      .finally(() => setLoading(false));
+    let isMounted = true;
+
+    getAllStudents()
+      .then(({ data }) => {
+        if (!isMounted) return;
+        setStudents(dedupeById(data.students));
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setError("Failed to load students.");
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -49,7 +63,9 @@ export default function AttachStudentForm({ onAttach }) {
       setStudents((prev) => prev.filter((s) => s.id !== Number(studentId)));
       setStudentId("");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to add student.");
+      setError(
+        err.response?.data?.message || "Failed to add student to class.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -72,7 +88,7 @@ export default function AttachStudentForm({ onAttach }) {
           value=""
           className="bg-[var(--color-bg)] text-[var(--color-text)]"
         >
-          {students.length === 0 ? "No unassigned students" : "Choose student"}
+          {students.length === 0 ? "No students found" : "Choose student"}
         </option>
         {students.map((student) => (
           <option
@@ -98,6 +114,11 @@ export default function AttachStudentForm({ onAttach }) {
           something went wrong
         </p>
       )}
+
+      <p className="text-xs opacity-60 sm:basis-full">
+        Students already enrolled in other classes are still shown — they can be
+        part of more than one class.
+      </p>
     </form>
   );
 }

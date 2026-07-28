@@ -173,11 +173,11 @@ export default function StudentTable({
           <div className="w-full max-w-md rounded-2xl border border-black/10 bg-[var(--color-bg)] p-6 text-[var(--color-text)] shadow-xl dark:border-white/10">
             <h3 className="text-lg font-semibold">Approve Certificate</h3>
             <p className="mt-2 text-sm opacity-70">
-              Are you sure you want to approve the certificate for{" "}
+              Are you sure you wannna approve the certificate for{" "}
               <span className="font-semibold">
                 {pendingApproveStudent.name}
               </span>
-              ? This action cannot be easily undone.
+              ?
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
