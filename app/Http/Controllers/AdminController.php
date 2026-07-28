@@ -96,20 +96,6 @@ class AdminController extends Controller
       $user->update([
          'role' => $val['role'],
       ]);
-
-      if ($val['role'] === 'student') {
-         StudentInfoModel::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-               'name' => $user->name,
-               'gender' => 'Male',
-               'dob' => '2000-01-01',
-               'academic_status' => 'active',
-               'certificate_status' => 'pending',
-            ]
-         );
-      }
-
       return response()->json([
          'message' => 'Role updated successfully',
          'user' => $user,
@@ -229,11 +215,15 @@ class AdminController extends Controller
 
    public function removeStudentFromClass(ClassModel $class, StudentInfoModel $student)
    {
-      if ($student->class_id !== $class->id) {
+      $isEnrolled = $class->students()
+         ->where('student_info.id', $student->id)
+         ->exists();
+
+      if (!$isEnrolled) {
          abort(404, 'This student is not enrolled in this class.');
       }
 
-      $student->update(['class_id' => null]);
+      $class->students()->detach($student->id);
 
       return response()->json([
          'message' => 'Student removed from class successfully.',

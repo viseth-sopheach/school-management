@@ -6,6 +6,7 @@ use App\Models\ClassModel;
 use App\Models\ScoreModel;
 use App\Models\StudentInfoModel;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -56,6 +57,7 @@ class TeacherController extends Controller
          'class_id' => 'nullable|integer|exists:classes,id',
       ]);
 
+      $class = null;
       if (!empty($validate['class_id'])) {
          $class = ClassModel::find($validate['class_id']);
 
@@ -64,7 +66,7 @@ class TeacherController extends Controller
          }
       }
 
-      $student = DB::transaction(function () use ($validate) {
+      $student = DB::transaction(function () use ($validate, $class) {
          $user = User::create([
             'name' => $validate['name'],
             'email' => $validate['email'],
@@ -72,27 +74,32 @@ class TeacherController extends Controller
             'role' => 'student',
          ]);
 
-         return StudentInfoModel::create([
+         $studentInfo = StudentInfoModel::create([
             'user_id' => $user->id,
-            'class_id' => $validate['class_id'] ?? null,
             'name' => $validate['name'],
             'gender' => $validate['gender'],
             'dob' => $validate['dob'],
          ]);
+
+         if ($class) {
+            $studentInfo->classes()->attach($class->id);
+         }
+
+         return $studentInfo;
       });
 
       return response()->json([
          'message' => 'Student created successfully.',
-         'student' => $student,
+         'student' => $student->load('classes'),
       ]);
    }
 
-   public function availableStudents()
+   /**
+    * Return every student account so a teacher can attach any of them to one of their classes, regardless of existing enrollments.
+    */
+   public function allStudents()
    {
       $students = User::where('role', 'student')
-         ->whereDoesntHave('studentInfo', function ($query) {
-            $query->whereNotNull('class_id');
-         })
          ->orderBy('name')
          ->get(['id', 'name', 'email']);
 
@@ -108,11 +115,16 @@ class TeacherController extends Controller
       }
 
       $validated = $request->validate([
-         'student_id' => ['required', 'integer', Rule::exists('users', 'id')->where('role', 'student')],
+         'student_id' => [
+            'required',
+            'integer',
+            Rule::exists('users', 'id')->where('role', 'student'),
+         ],
       ]);
 
-      $user = User::find($validated['student_id']);
+      $user = User::findOrFail($validated['student_id']);
 
+      // Lazily create the student's academic profile
       $studentInfo = StudentInfoModel::firstOrCreate(
          ['user_id' => $user->id],
          [
@@ -124,17 +136,33 @@ class TeacherController extends Controller
          ]
       );
 
-      if ($studentInfo->class_id) {
+      $alreadyEnrolled = $class->students()
+         ->where('student_info.id', $studentInfo->id)
+         ->exists();
+
+      if ($alreadyEnrolled) {
          return response()->json([
-            'message' => 'This student is already enrolled in a class.',
+            'message' => 'This student is already enrolled in this class.',
          ], 422);
       }
 
-      $studentInfo->update(['class_id' => $class->id]);
+      try {
+         $class->students()->attach($studentInfo->id);
+      } catch (QueryException $e) {
+         // Defends against a race condition where two requests attach
+         // the same student to the same class at the same time.
+         if ((int)$e->getCode() === 23000) {
+            return response()->json([
+               'message' => 'This student is already enrolled in this class.',
+            ], 422);
+         }
+
+         throw $e;
+      }
 
       return response()->json([
          'message' => 'Student added to class successfully.',
-         'student' => $studentInfo,
+         'student' => $studentInfo->fresh(['scores']),
       ]);
    }
 
@@ -148,13 +176,9 @@ class TeacherController extends Controller
          'scores.*' => 'nullable|numeric|min:0|max:100',
       ]);
 
-      $student = StudentInfoModel::with('classes')->find($id);
+      $student = StudentInfoModel::find($id);
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
-      }
-
-      if (!$student->classes || $student->classes->teacher_id !== $req->user()->id) {
-         abort(403, 'You are not authorized to update this student.');
       }
 
       $student->fill(collect($val)->except('scores')->all());
@@ -164,6 +188,7 @@ class TeacherController extends Controller
             if ($score === null || $score === '') {
                continue;
             }
+
             ScoreModel::updateOrCreate(
                ['student_info_id' => $student->id, 'subject_id' => $subjectId],
                ['score' => $score]
@@ -185,15 +210,11 @@ class TeacherController extends Controller
       ]);
    }
 
-   public function delete(Request $request, int $id)
+   public function delete(int $id)
    {
-      $student = StudentInfoModel::with('classes')->find($id);
+      $student = StudentInfoModel::find($id);
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
-      }
-
-      if (!$student->classes || $student->classes->teacher_id !== $request->user()->id) {
-         abort(403, 'You are not authorized to delete this student.');
       }
 
       $student->delete();
@@ -202,15 +223,18 @@ class TeacherController extends Controller
 
    public function approveCertificate(Request $request, int $studentId)
    {
-      $student = StudentInfoModel::with('classes')->find($studentId);
+      $student = StudentInfoModel::find($studentId);
 
       if (!$student) {
          return response()->json(['message' => 'Student not found'], 404);
       }
 
-      $isOwnClass = $student->classes && $student->classes->teacher_id === $request->user()->id;
+      // A teacher may approve a student's certificate
+      $teachesThisStudent = $student->classes()
+         ->where('teacher_id', $request->user()->id)
+         ->exists();
 
-      if (!$isOwnClass) {
+      if (!$teachesThisStudent) {
          return response()->json([
             'message' => "You are not authorized to approve this student's certificate.",
          ], 403);
@@ -241,11 +265,15 @@ class TeacherController extends Controller
          abort(403, 'You are not authorized to modify this class.');
       }
 
-      if ($student->class_id !== $class->id) {
+      $isEnrolled = $class->students()
+         ->where('student_info.id', $student->id)
+         ->exists();
+
+      if (!$isEnrolled) {
          abort(404, 'This student is not enrolled in this class.');
       }
 
-      $student->update(['class_id' => null]);
+      $class->students()->detach($student->id);
 
       return response()->json([
          'message' => 'Student removed from class successfully.',

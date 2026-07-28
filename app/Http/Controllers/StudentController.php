@@ -9,44 +9,33 @@ use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
-   private function getOrInitializeStudent(Request $request, array $with = [])
-   {
-      $userId = $request->user()->id;
-      $student = StudentInfoModel::with($with)->where('user_id', $userId)->first();
-
-      if (!$student) {
-         try {
-            $student = StudentInfoModel::create([
-               'user_id' => $userId,
-               'name' => $request->user()->name,
-               'gender' => 'Male',
-               'dob' => '2000-01-01',
-               'academic_status' => 'active',
-               'certificate_status' => 'pending',
-            ]);
-            if (!empty($with)) {
-               $student->load($with);
-            }
-         } catch (\Exception $e) {
-            $student = StudentInfoModel::with($with)->where('user_id', $userId)->first();
-         }
-      }
-
-      return $student;
-   }
-
    public function me(Request $request)
    {
-      $student = $this->getOrInitializeStudent($request);
+      $student = StudentInfoModel::where('user_id', $request->user()->id)->first();
       return response()->json(['me' => $student]);
    }
 
-   // Return the authenticated student's dashboard information.
    public function dashboard(Request $request)
    {
-      $student = $this->getOrInitializeStudent($request, ['classes.teacher']);
+      $student = StudentInfoModel::with(['classes.teacher'])
+         ->where('user_id', $request->user()->id)
+         ->first();
 
-      $academicStatus = $student->class_id
+      if (!$student) {
+         $student = StudentInfoModel::create([
+            'user_id' => $request->user()->id,
+            'name' => $request->user()->name,
+            'gender' => 'Male',
+            'dob' => '2000-01-01',
+            'academic_status' => 'active',
+            'certificate_status' => 'pending',
+         ]);
+         $student->load(['classes.teacher']);
+      }
+
+      $enrolledClasses = $student->classes;
+
+      $academicStatus = $enrolledClasses->isNotEmpty()
          ? ucfirst($student->academic_status ?? 'active')
          : 'Inactive';
 
@@ -56,8 +45,12 @@ class StudentController extends Controller
             'name' => $request->user()->name,
             'email' => $request->user()->email,
             'gender' => $student->gender,
-            'class_name' => $student->classes?->name,
-            'teacher_name' => $student->classes?->teacher?->name,
+            'class_name' => $enrolledClasses->isNotEmpty()
+               ? $enrolledClasses->pluck('name')->implode(', ')
+               : null,
+            'teacher_name' => $enrolledClasses->isNotEmpty()
+               ? $enrolledClasses->pluck('teacher.name')->filter()->unique()->implode(', ')
+               : null,
             'enrolled_at' => optional($student->enrolled_at)->toDateString(),
             'academic_status' => $academicStatus,
          ],
@@ -66,7 +59,17 @@ class StudentController extends Controller
 
    public function grade(Request $request)
    {
-      $student = $this->getOrInitializeStudent($request);
+      $student = StudentInfoModel::where('user_id', $request->user()->id)->first();
+      if (!$student) {
+         $student = StudentInfoModel::create([
+            'user_id' => $request->user()->id,
+            'name' => $request->user()->name,
+            'gender' => 'Male',
+            'dob' => '2000-01-01',
+            'academic_status' => 'active',
+            'certificate_status' => 'pending',
+         ]);
+      }
       return response()->json([
          'grade' => $student->gpaSummary(),
       ]);
@@ -74,24 +77,55 @@ class StudentController extends Controller
 
    public function certificate(Request $request)
    {
-      $student = $this->getOrInitializeStudent($request, ['classes.teacher']);
+      $student = StudentInfoModel::with(['classes.teacher'])
+         ->where('user_id', $request->user()->id)
+         ->first();
+
+      if (!$student) {
+         $student = StudentInfoModel::create([
+            'user_id' => $request->user()->id,
+            'name' => $request->user()->name,
+            'gender' => 'Male',
+            'dob' => '2000-01-01',
+            'academic_status' => 'active',
+            'certificate_status' => 'pending',
+         ]);
+         $student->load(['classes.teacher']);
+      }
+
+      // Certificates are issued per student, not per class. If a student
+      // is enrolled in more than one class we show the first one here.
+      $primaryClass = $student->classes->first();
 
       return response()->json([
          'certificate' => [
             'status' => $student->certificate_status,
             'student_name' => $request->user()->name,
-            'class_name' => $student->classes?->name ?? 'N/A',
-            'teacher_name' => $student->classes?->teacher?->name ?? 'N/A',
+            'class_name' => $primaryClass?->name ?? 'N/A',
+            'teacher_name' => $primaryClass?->teacher?->name ?? 'N/A',
             'completion_date' => optional($student->certificate_approved_at)->toDateString(),
             'school_name' => config('app.name'),
          ],
       ]);
    }
 
-   // Export the approved certificate as a PDF.
    public function exportCertificate(Request $request)
    {
-      $student = $this->getOrInitializeStudent($request, ['classes.teacher']);
+      $student = StudentInfoModel::with(['classes.teacher'])
+         ->where('user_id', $request->user()->id)
+         ->first();
+
+      if (!$student) {
+         $student = StudentInfoModel::create([
+            'user_id' => $request->user()->id,
+            'name' => $request->user()->name,
+            'gender' => 'Male',
+            'dob' => '2000-01-01',
+            'academic_status' => 'active',
+            'certificate_status' => 'pending',
+         ]);
+         $student->load(['classes.teacher']);
+      }
 
       if ($student->certificate_status !== 'approved') {
          return response()->json([
@@ -99,10 +133,12 @@ class StudentController extends Controller
          ], 403);
       }
 
+      $primaryClass = $student->classes->first();
+
       $pdf = Pdf::loadView('certificates.student', [
          'studentName' => $request->user()->name,
-         'className' => $student->classes?->name ?? 'N/A',
-         'teacherName' => $student->classes?->teacher?->name ?? 'N/A',
+         'className' => $primaryClass?->name ?? 'N/A',
+         'teacherName' => $primaryClass?->teacher?->name ?? 'N/A',
          'completionDate' => optional($student->certificate_approved_at)->format('F j, Y'),
          'schoolName' => config('app.name'),
       ])->setPaper('a4', 'landscape');

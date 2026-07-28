@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Services\GpaCalculatorService;
 
@@ -11,7 +12,6 @@ class StudentInfoModel extends Model
 {
    protected $fillable = [
       'user_id',
-      'class_id',
       'name',
       'gender',
       'dob',
@@ -38,9 +38,17 @@ class StudentInfoModel extends Model
       ];
    }
 
-   public function classes(): BelongsTo
+   /**
+    * The classes this student is enrolled in.
+    */
+   public function classes(): BelongsToMany
    {
-      return $this->belongsTo(ClassModel::class, 'class_id');
+      return $this->belongsToMany(
+         ClassModel::class,
+         'class_student',
+         'student_info_id',
+         'class_id'
+      )->withTimestamps();
    }
 
    public function user(): BelongsTo

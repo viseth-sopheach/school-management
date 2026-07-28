@@ -6,21 +6,18 @@ use \App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\AdminController;
 
-// auth
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
    Route::post('/register', 'register')->name('auth.register');
    Route::post('/login', 'login')->name('auth.login')->middleware('throttle:5,1');
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-   // Authenticated
    Route::controller(AuthController::class)->prefix('auth')->group(function () {
       Route::get('/me', 'me')->name('auth.me');
       Route::put('/profile', 'updateProfile')->name('auth.profile.update');
       Route::post('/logout', 'logout')->name('auth.logout');
    });
 
-   // Admin
    Route::middleware('role:admin')->prefix('admin')->controller(AdminController::class)->group(function () {
       Route::get('/', 'index')->name('admin.dashboard');
       Route::get('/users', 'getAllUsers')->name('admin.users.index');
@@ -39,7 +36,6 @@ Route::middleware('auth:sanctum')->group(function () {
       Route::get('/classes/{class}', 'show')->name('admin.classes.show');
    });
 
-   // Teacher
    Route::middleware('role:teacher')->prefix('teacher')->controller(TeacherController::class)->group(function () {
       Route::get('/me', 'me')->name('teacher.me');
       Route::get('/classes', 'myClasses')->name('teacher.classes.index');
@@ -47,7 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
       Route::post('/students', 'addStudent')->name('teacher.students.store');
       Route::delete('/classes/{class}/students/{student}', 'removeStudentFromClass')->name('teacher.classes.students.destroy');
-      Route::get('/students/available', 'availableStudents')->name('teacher.students.available');
+      Route::get('/students/all', 'allStudents')->name('teacher.students.all');
       Route::post('/classes/{class}/students/attach', 'attachStudent')->name('teacher.classes.students.attach');
 //      Route::post('/scores', 'score')->name('teacher.scores.store');
       Route::put('/{id}', 'update')->name('teacher.update');
@@ -57,7 +53,6 @@ Route::middleware('auth:sanctum')->group(function () {
          ->where('studentId', '[0-9]+');
    });
 
-   // Student
    Route::middleware('role:student')->prefix('student')->controller(StudentController::class)->group(function () {
       Route::get('/me', 'me')->name('student.me');
       Route::get('/dashboard', 'dashboard')->name('student.dashboard');

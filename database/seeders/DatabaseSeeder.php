@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
          'name' => 'C++ language',
          'teacher_id' => $teacherTwo->id,
       ]);
+
       $studentOne = User::factory()->create([
          'name' => 'Tom',
          'email' => 'tom@ms.com',
@@ -51,15 +52,15 @@ class DatabaseSeeder extends Seeder
          'role' => 'student',
       ]);
 
-      StudentInfoModel::create([
+      $studentOneInfo = StudentInfoModel::create([
          'user_id' => $studentOne->id,
-         'class_id' => $classOne->id,
          'name' => 'Tom',
          'gender' => 'Male',
          'dob' => '2005-05-15',
          'certificate_status' => 'pending',
          'academic_status' => 'active',
       ]);
+      $studentOneInfo->classes()->attach($classOne->id);
 
       $studentTwo = User::factory()->create([
          'name' => 'Alice',
@@ -68,14 +69,15 @@ class DatabaseSeeder extends Seeder
          'role' => 'student',
       ]);
 
-      StudentInfoModel::create([
+      $studentTwoInfo = StudentInfoModel::create([
          'user_id' => $studentTwo->id,
-         'class_id' => $classOne->id,
          'name' => 'Alice',
          'gender' => 'Female',
          'dob' => '2005-08-22',
          'certificate_status' => 'pending',
          'academic_status' => 'active',
       ]);
+      // Demonstrates a student enrolled in multiple classes at once.
+      $studentTwoInfo->classes()->attach([$classOne->id, $classTwo->id]);
    }
 }
